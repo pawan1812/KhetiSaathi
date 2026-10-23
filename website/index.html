@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="mr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KhetiSaathi | शेतीसाथी — Voice-First AI Agronomy & Leaf Photo Disease Diagnosis</title>
+  <meta name="description" content="KhetiSaathi: Voice-First AI farming assistant in Marathi & Hindi. Voice queries, AI leaf photo disease diagnosis, live APMC mandi prices, and verified ICAR guidance.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="lang-mr">
+
+  <!-- Fixed Agricultural Farm Background Image Overlay Layer -->
+  <div class="bg-agricultural-layer"></div>
+
+  <!-- Interactive Moving Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Vibrant Floating Background Color Orbs (Emerald, Amber, Mint & Lime) -->
+  <div class="floating-color-orb orb-green-primary"></div>
+  <div class="floating-color-orb orb-gold-harvest"></div>
+  <div class="floating-color-orb orb-mint-middle"></div>
+  <div class="floating-color-orb orb-lime-pulse"></div>
+
+  <!-- ==========================================================================
+       Live APMC Mandi Moving Ticker Tape
+       ========================================================================== -->
+  <div class="ticker-wrap">
+    <div class="ticker-label-badge">
+      <span class="live-pulse-dot"></span>
+      <span>LIVE APMC MANDI</span>
+    </div>
+    <div class="ticker-track" id="ticker-track">
+      <!-- Injected by app.js -->
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Sticky Glassmorphic Navigation Bar
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#hero" class="brand-logo">
+        <div class="logo-badge">🌿</div>
+        <div class="logo-text-wrap">
+          <span class="brand-name" data-i18n="appName">शेतीसाथी</span>
+          <span class="brand-tagline" data-i18n="appSub">आपला किसान AI • संशोधन प्रकल्प</span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#voice-assistant" class="nav-link" data-i18n="navVoice">बोलून विचारा</a></li>
+          <li><a href="#crop-scanner" class="nav-link" data-i18n="navCamera">पान स्कॅन करा</a></li>
+          <li><a href="#calculator" class="nav-link" data-i18n="navCalculator">नफा कॅल्क्युलेटर</a></li>
+          <li><a href="#features" class="nav-link" data-i18n="navFeatures">वैशिष्ट्ये</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher">
+          <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+          <button class="lang-btn" data-lang="hi" onclick="switchLanguage('hi')">हिन्दी</button>
+          <button class="lang-btn active" data-lang="mr" onclick="switchLanguage('mr')">मराठी</button>
+        </div>
+
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">🌙</button>
+
+        <button class="btn btn-secondary btn-sm open-auth-modal" data-i18n="loginBtn">शेतकरी लॉगिन</button>
+        <a href="http://localhost:3000/auth" class="btn btn-primary btn-sm" data-i18n="registerBtn">मोफत नोंदणी</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Hero Section with Animated Mascot & Moving Holographic Badges
+       ========================================================================== -->
+  <section class="hero-section" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge-pill" data-i18n="heroBadge">
+          🌱 महाराष्ट्राचा अग्रगण्य Voice-First AI कृषी सहाय्यक
+        </div>
+        <h1 class="hero-title">
+          <span data-i18n="heroTitlePrefix">अन्नदात्याच्या सेवेसाठी</span><br>
+          <span class="hero-title-highlight" data-i18n="heroTitleHighlight">आवाज, दृष्टी आणि अचूक बाजारभाव</span>
+        </h1>
+        <p class="hero-description" data-i18n="heroDesc">
+          मराठी व हिंदी भाषेत आवाजाने बोला, पिकांच्या पानांचे फोटो काढून रोग निदान करा, थेट APMC बाजारभाव मिळवा आणि KCC शून्य टक्के व्याज कर्जाचा लाभ घ्या.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#voice-assistant" class="btn btn-primary btn-lg" data-i18n="ctaVoice">
+            🎙️ आवाजाने प्रश्न विचारा
+          </a>
+          <a href="#crop-scanner" class="btn btn-secondary btn-lg" data-i18n="ctaScan">
+            📸 पिकाचे पान स्कॅन करा
+          </a>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="stat-item">
+            <span class="stat-number green">50,000+</span>
+            <span class="stat-label" data-i18n="statFarmers">सक्रिय शेतकरी</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number gold">2,800+</span>
+            <span class="stat-label" data-i18n="statMandis">बाजार समित्या</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">94.8%</span>
+            <span class="stat-label" data-i18n="statAccuracy">रोग निदान अचूकता</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flowing Farmer Mascot "Kisan Mitra" with Speech Bubble -->
+      <div class="hero-visual">
+        <div class="mascot-frame" id="mascot-frame-interactive" title="Click Kisan Mitra to hear a farming tip!">
+          <img src="assets/kisan_mascot.jpg" alt="Kisan Mitra 3D Mascot Character" class="mascot-image" onerror="this.src='https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1200&q=80'">
+          <div class="mascot-scan-overlay"></div>
+
+          <!-- Interactive Speech Bubble -->
+          <div id="mascot-speech-bubble" style="position:absolute; bottom:20px; left:20px; right:20px; background:rgba(6,78,59,0.85); backdrop-filter:blur(14px); border:1px solid rgba(52,211,153,0.4); padding:12px 16px; border-radius:var(--radius-md); color:#ffffff; font-size:0.86rem; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); text-align:center; cursor:pointer;">
+            👨‍🌾 " नमस्कार शेतकरी बंधू! मला टॅप करा किंवा खाली आवाजाने प्रश्न विचारा! "
+          </div>
+        </div>
+
+        <!-- Floating Glassmorphic Physics Badges -->
+        <div class="floating-badge fbadge-1">
+          <span style="font-size:1.6rem">🚨</span>
+          <div>
+            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted)">कळमना APMC, नागपूर</div>
+            <div style="font-size:0.88rem; font-weight:900; color:var(--primary)">कापूस +₹180/क्विंटल ↗</div>
+          </div>
+        </div>
+
+        <div class="floating-badge fbadge-2">
+          <span style="font-size:1.6rem">🧪</span>
+          <div>
+            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted)">MobileNetV3 AI</div>
+            <div style="font-size:0.88rem; font-weight:900; color:var(--accent-gold)">तांबेरा रोग निदान ९४.८%</div>
+          </div>
+        </div>
+
+        <div class="floating-badge fbadge-3">
+          <span style="font-size:1.6rem">🌦️</span>
+          <div>
+            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted)">काटोल हवामान रडार</div>
+            <div style="font-size:0.88rem; font-weight:900; color:#0ea5e9">२४°C • निरभ्र आकाश</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       KhetiSaathi AI — Voice Assistant & Leaf Pathology Scanner
+       ========================================================================== -->
+  <section class="apna-kisan-section" id="voice-assistant">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">उद्योग-मानक कृषी AI • KhetiSaathi AI Doctor</span>
+        <h2 class="section-title">आवाजाने बोला किंवा पानाचा फोटो स्कॅन करा</h2>
+        <p class="section-subtitle">
+          मराठी व हिंदी भाषिकांसाठी खास तयार केलेली प्रगत कृषी बुद्धिमत्ता व रोग निदान प्रणाली.
+        </p>
+      </div>
+
+      <div class="apna-kisan-grid">
+        <!-- Module 1: Voice-First Farming Assistant -->
+        <div class="voice-assistant-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-main);" data-i18n="voiceCardTitle">
+              🎙️ आवाजाने शेती सल्ला विचारा
+            </h3>
+            <span class="glass-pill" style="font-size:0.75rem; font-weight:800; color:var(--primary);">
+              LIVE SPEECH
+            </span>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:6px;" data-i18n="voiceCardSub">
+            माईक बटण दाबा आणि मराठीत प्रश्न विचारा. आमचा AI सहाय्यक लगेच बोलून उत्तर देईल.
+          </p>
+
+          <!-- Large Microphone Button -->
+          <button class="voice-mic-hero-btn" id="voice-mic-btn" title="Tap to Speak in Marathi/Hindi">
+            🎙️
+          </button>
+          <div style="text-align:center; font-size:0.82rem; font-weight:800; color:var(--primary);" id="voice-status-label" data-i18n="voiceBtnIdle">
+            येथे दाबून बोला / Tap to Speak
+          </div>
+
+          <!-- Animated Sound Waveform Indicator -->
+          <div class="audio-waves" id="audio-waves">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+          </div>
+
+          <!-- Spoken Output Box -->
+          <div class="voice-output-box" id="voice-output-text">
+            🙏 <strong>नमस्कार शेतकरी बंधू!</strong> मी 'शेतीसाथी AI' सहाय्यक आहे. माईकवर क्लिक करून बोला किंवा खालील नमुना प्रश्नांवर टॅप करा.
+          </div>
+
+          <!-- Audio Replay Action Button -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <button class="btn btn-secondary btn-sm" id="voice-tts-btn" style="display:none;" data-i18n="listenSpoken">
+              🔊 आवाजात ऐका
+            </button>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+              ICAR व राज्य कृषी विद्यापीठे प्रमाणित
+            </span>
+          </div>
+
+          <!-- Quick Spoken Questions -->
+          <div style="margin-top:18px;">
+            <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">किंवा हे प्रश्न टॅप करा:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+              <button class="sample-leaf-btn voice-sample-chip" data-query="urea">⚠️ खत दरवाढीवर नॅनो युरिया उपाय काय?</button>
+              <button class="sample-leaf-btn voice-sample-chip" data-query="orange_mandi">🍊 नागपूर संत्रा आजचा काटोल भाव काय?</button>
+              <button class="sample-leaf-btn voice-sample-chip" data-query="pmkisan">📋 नमो शेतकरी ₹४,००० कधी मिळणार?</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module 2: AI Crop Leaf Photo Disease Classifier -->
+        <div class="crop-scanner-card" id="crop-scanner">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-main);" data-i18n="cameraCardTitle">
+              📸 AI पीक रोग निदान (Leaf Scanner)
+            </h3>
+            <span class="glass-pill" style="font-size:0.75rem; font-weight:800; color:var(--accent-gold);">
+              MobileNetV3 AI
+            </span>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:6px;" data-i18n="cameraCardSub">
+            पिकाच्या रोगाचे पान अपलोड करा किंवा फोटो काढा. जेमिनी व MobileNet AI मॉडेल लगेच निदान व उपाय सांगेल.
+          </p>
+
+          <!-- Interactive Viewfinder / Upload Zone -->
+          <div class="scanner-viewfinder" id="scanner-viewfinder">
+            <div class="scanner-laser-line"></div>
+            <img id="leaf-preview-img" src="assets/leaf_sample.jpg" alt="Leaf Sample" style="position:absolute; width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none'">
+            <div style="position:relative; z-index:2; text-align:center; background:rgba(0,0,0,0.45); backdrop-filter:blur(6px); padding:10px 18px; border-radius:var(--radius-md); color:#ffffff;">
+              <span style="font-size:1.8rem">📷</span>
+              <p style="font-size:0.8rem; font-weight:800; margin-top:4px;" data-i18n="uploadPrompt">
+                कॅमेऱ्याने फोटो घ्या किंवा गॅलरीतून निवडा
+              </p>
+            </div>
+          </div>
+          <input type="file" id="leaf-file-input" accept="image/*" capture="environment" style="display:none;">
+
+          <!-- Sample Leaf Chips -->
+          <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;" data-i18n="orChooseSample">
+            किंवा नमुना पान निवडा:
+          </span>
+          <div class="sample-leaf-chips">
+            <button class="sample-leaf-btn active" data-sample="soybean_rust">🌱 सोयाबीन तांबेरा</button>
+            <button class="sample-leaf-btn" data-sample="cotton_curl">🌾 कापूस चुरडा-मुरडा</button>
+            <button class="sample-leaf-btn" data-sample="orange_canker">🍊 संत्रा कॅन्कर</button>
+            <button class="sample-leaf-btn" data-sample="healthy_leaf">✨ निरोगी पान</button>
+          </div>
+
+          <button class="btn btn-primary" id="btn-analyze-leaf" style="width:100%;" data-i18n="btnAnalyze">
+            🔬 AI रोग विश्लेषण करा (Analyze Leaf)
+          </button>
+
+          <!-- Real-Time Diagnosis Card -->
+          <div id="scanner-results-container" style="margin-top:20px; background:var(--bg-glass-input); border:1.5px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--glass-shadow);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <span id="res-disease-status" style="font-size:0.72rem; font-weight:800; background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:var(--radius-full); text-transform:uppercase;">
+                  Supported (सत्यापित ICAR शिफारस)
+                </span>
+                <h4 id="res-disease-label" style="font-size:1.1rem; font-weight:900; color:var(--text-main); margin-top:6px;">
+                  सोयाबीन तांबेरा / पानांवरील तपकिरी ठिपके (Cercospora Leaf Spot)
+                </h4>
+              </div>
+              <span id="res-disease-conf" style="font-size:1rem; font-weight:900; color:var(--primary);">
+                94.8% Confidence
+              </span>
+            </div>
+
+            <div style="margin-top:12px; font-size:0.86rem; color:var(--text-muted);">
+              <strong>लक्षणे / Symptoms:</strong> <span id="res-disease-symptoms">पानांवर तपकिरी-लालसर रंगाचे ठिपके, नंतर पाने पिवळी पडून गळतात.</span>
+            </div>
+
+            <div style="margin-top:12px; font-size:0.88rem; background:rgba(16,185,129,0.08); border-left:3px solid var(--primary); padding:10px 14px; border-radius:var(--radius-sm); color:var(--text-main);">
+              <strong>🌿 प्रमाणित कृषी उपाय / Treatment:</strong>
+              <p id="res-disease-remedy" style="margin-top:4px; line-height:1.6;">
+                १. हेक्झाकोनॅझोल ५% ईसी (Hexaconazole) २० मि.ली./१० लिटर पाण्यात फवारा.<br>
+                २. सेंद्रिय: ट्रायकोडर्मा व्हिरिडी ५ ग्रॅम/लिटर फवारणी करा.<br>
+                ३. शेतात पाण्याचा निचरा योग्य ठेवा.
+              </p>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:10px; border-top:1px solid var(--glass-border);">
+              <span id="res-disease-source" style="font-size:0.72rem; color:var(--text-muted);">
+                प्रमाणित संदर्भ: ICAR-IISR इंदूर व डॉ. PDKV अकोला.
+              </span>
+              <a href="tel:18001801551" class="btn btn-secondary btn-sm" style="font-size:0.76rem; color:#dc2626; border-color:#fca5a5;">
+                📞 KVK तज्ज्ञ सल्ला (Call Expert)
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Interactive Yield & Profit Simulator
+       ========================================================================== -->
+  <section class="section" id="calculator">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge" data-i18n="calcBadge">हंगामी नफा सिम्युलेटर</span>
+        <h2 class="section-title" data-i18n="calcTitle">या हंगामातील नफ्याची त्वरित पडताळणी करा</h2>
+        <p class="section-subtitle" data-i18n="calcSubtitle">
+          पीक आणि जमीन (एकर) निवडून थेट निव्वळ नफा आणि उत्पादन खर्चाचे अचूक गणित पहा.
+        </p>
+      </div>
+
+      <div class="calc-container">
+        <!-- Inputs -->
+        <div class="calc-inputs">
+          <div class="calc-group">
+            <div class="calc-label-row">
+              <label class="calc-label" data-i18n="calcCropLabel">पीक निवडा</label>
+              <span style="font-size:0.78rem; font-weight:800; color:var(--primary);">2025-26 MSP Linked</span>
+            </div>
+            <select id="calc-crop" class="calc-select">
+              <option value="cotton">Cotton / कापूस (MSP ₹7,521/qtl)</option>
+              <option value="citrus" selected>Nagpur Orange / संत्रा (Market ₹4,200/qtl)</option>
+              <option value="soybean">Soybean / सोयाबीन (MSP ₹4,892/qtl)</option>
+              <option value="wheat">Wheat / गहू (MSP ₹2,425/qtl)</option>
+              <option value="onion">Onion / कांदा (Market ₹1,950/qtl)</option>
+            </select>
+          </div>
+
+          <div class="calc-group">
+            <div class="calc-label-row">
+              <label class="calc-label" data-i18n="calcLandLabel">जमीन (एकर)</label>
+              <span id="calc-acres-display" class="calc-val-display">12 Acres</span>
+            </div>
+            <input type="range" id="calc-acres" min="1" max="50" value="12" class="calc-slider">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+              <span>1 Acre</span>
+              <span>25 Acres</span>
+              <span>50 Acres</span>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-glass-input); border:1px dashed var(--primary); padding:16px; border-radius:var(--radius-md);">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:0.86rem; color:var(--text-accent);">
+              <span>⚡ Google Gemini AI Crop Engine:</span>
+            </div>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">
+              केंद्रीय हमीभाव (MSP), महाराष्ट्र APMC थेट लिलाव दर आणि हॉर्मुझ खत टंचाई दरवाढ या सर्व घटकांचा समावेश.
+            </p>
+          </div>
+        </div>
+
+        <!-- Calculated Live Results -->
+        <div class="calc-results-box">
+          <div>
+            <span style="font-size:0.78rem; font-weight:800; text-transform:uppercase; color:var(--text-accent);" data-i18n="calcEstProfit">अपेक्षित निव्वळ नफा</span>
+            <div id="calc-profit-val" class="profit-amount">₹14,52,000</div>
+            <span id="calc-roi-val" class="profit-roi-chip">+178% ROI</span>
+          </div>
+
+          <div class="calc-breakdown-grid">
+            <div class="calc-mini-stat">
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;" data-i18n="calcGrossRev">एकूण उत्पन्न (विक्री)</span>
+              <div id="calc-gross-val" style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-top:2px;">₹22,68,000</div>
+            </div>
+            <div class="calc-mini-stat">
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;" data-i18n="calcTotalCost">एकूण उत्पादन खर्च</span>
+              <div id="calc-cost-val" style="font-size:1.15rem; font-weight:900; color:#ef4444; margin-top:2px;">₹8,16,000</div>
+            </div>
+            <div class="calc-mini-stat" style="grid-column: span 2;">
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;" data-i18n="calcTotalYield">अपेक्षित उत्पादन</span>
+              <div id="calc-yield-val" style="font-size:1.15rem; font-weight:900; color:var(--primary); margin-top:2px;">540 qtl</div>
+            </div>
+          </div>
+
+          <a href="http://localhost:3000/crops/predict" class="btn btn-primary" style="width:100%; text-align:center;">
+            🚀 Open Full 4-Step Prediction Simulator
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       6-Pillar Features Grid with 3D Tilt
+       ========================================================================== -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge" data-i18n="featuresBadge">अविष्कार संशोधन प्रकल्प</span>
+        <h2 class="section-title" data-i18n="featuresTitle">स्मार्ट कृषी तंत्रज्ञानाची संपूर्ण ताकद</h2>
+        <p class="section-subtitle" data-i18n="featuresSubtitle">
+          हवामानातील अनिश्चितता, कीड-रोग आणि खत टंचाईवर मात करण्यासाठी तुमचा विश्वासू शेतीसाथी.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">📈</div>
+          <h3 class="feature-title" data-i18n="feat1Title">थेट APMC बाजार समिती भाव</h3>
+          <p class="feature-desc" data-i18n="feat1Desc">
+            कळमना (नागपूर), हिंगणा, काटोल, लासलगाव यासह २,८००+ बाजार समित्यांचे आजचे कमाल, किमान व सरासरी भाव.
+          </p>
+          <a href="http://localhost:3000/market" class="feature-footer-tag">
+            <span>Explore Mandis</span> &rarr;
+          </a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🔬</div>
+          <h3 class="feature-title" data-i18n="feat2Title">AI पीक रोग निदान (Gemini + MobileNet)</h3>
+          <p class="feature-desc" data-i18n="feat2Desc">
+            पानावरील ठिपके, तांबेरा व किडींचे ९४.८% अचूकतेने निदान आणि ICAR प्रमाणित सेंद्रिय व रासायनिक उपाय.
+          </p>
+          <a href="#crop-scanner" class="feature-footer-tag">
+            <span>Scan Leaf Now</span> &rarr;
+          </a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🚨</div>
+          <h3 class="feature-title" data-i18n="feat3Title">आपत्कालीन खत टंचाई केंद्र</h3>
+          <p class="feature-desc" data-i18n="feat3Desc">
+            हॉर्मुझ संकटामुळे खत दरवाढीवर नॅनो युरियाचा किफायतशीर वापर व ₹५,०००/एकर विशेष शासकीय पॅकेज.
+          </p>
+          <a href="http://localhost:3000/crisis" class="feature-footer-tag">
+            <span>View Crisis Hub</span> &rarr;
+          </a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🏦</div>
+          <h3 class="feature-title" data-i18n="feat4Title">KCC शून्य टक्के व्याज पीक कर्ज</h3>
+          <p class="feature-desc" data-i18n="feat4Desc">
+            नियमित परतफेडीवर ०% व्याजदराची पीक कर्ज पात्रता व सुलभ ईएमआय नियोजनाची सुविधा.
+          </p>
+          <a href="http://localhost:3000/loans" class="feature-footer-tag">
+            <span>Check Loan Limit</span> &rarr;
+          </a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📜</div>
+          <h3 class="feature-title" data-i18n="feat5Title">शासकीय योजनांचा त्वरित लाभ</h3>
+          <p class="feature-desc" data-i18n="feat5Desc">
+            नमो शेतकरी महासन्मान निधी, पीएम-किसान व पीक विमा योजनांची थेट पात्रता आणि अर्जाची माहिती.
+          </p>
+          <a href="http://localhost:3000/schemes" class="feature-footer-tag">
+            <span>Find Schemes</span> &rarr;
+          </a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🛰️</div>
+          <h3 class="feature-title" data-i18n="feat6Title">अचूक स्थानिक हवामान रडार</h3>
+          <p class="feature-desc" data-i18n="feat6Desc">
+            उपग्रहावर आधारित पाऊस, हवेतील आर्द्रता व वाऱ्याचा ताशी अचूक अंदाज.
+          </p>
+          <a href="http://localhost:3000/weather" class="feature-footer-tag">
+            <span>View Radar</span> &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Footer
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#hero" class="brand-logo" style="color:#ffffff;">
+            <div class="logo-badge">🌿</div>
+            <span style="color:#ffffff;">शेतीसाथी</span>
+          </a>
+          <p style="margin-top:14px; font-size:0.88rem; color:#94a3b8; line-height:1.6;">
+            अविष्कार संशोधन प्रकल्प अंतर्गत विकसित — भारतीय शेतकरी बांधवांना मोफत Voice AI, कॅमेरा रोग निदान आणि पारदर्शक बाजारभाव देणारा अग्रगण्य प्लॅटफॉर्म.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-title">प्लॅटफॉर्म साधने</h4>
+          <ul class="footer-links">
+            <li><a href="#voice-assistant" class="footer-link">🎙️ आवाजाने शेती सल्ला</a></li>
+            <li><a href="#crop-scanner" class="footer-link">📸 पीक पान रोग निदान</a></li>
+            <li><a href="http://localhost:3000/market" class="footer-link">📈 थेट APMC बाजारभाव</a></li>
+            <li><a href="#calculator" class="footer-link">📊 नफा सिम्युलेटर</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">शासकीय योजना</h4>
+          <ul class="footer-links">
+            <li><a href="http://localhost:3000/schemes" class="footer-link">पीएम-किसान सन्मान निधी</a></li>
+            <li><a href="http://localhost:3000/schemes" class="footer-link">नमो शेतकरी महासन्मान</a></li>
+            <li><a href="http://localhost:3000/loans" class="footer-link">KCC ०% पीक कर्ज</a></li>
+            <li><a href="http://localhost:3000/crisis" class="footer-link">आपत्कालीन खत पॅकेज</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">शेतकरी हेल्पलाइन</h4>
+          <ul class="footer-links">
+            <li class="footer-link">📞 किसान कॉल सेंटर: 1800-180-1551</li>
+            <li class="footer-link">📍 मुख्य कार्यालय: रामदासपेठ, नागपूर - ४४००१०</li>
+            <li class="footer-link">✉️ संपर्क: sahayak@khetisaathi.in</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 KhetiSaathi (शेतीसाथी / खेतीसाथी). सर्व हक्क राखीव. भारतीय कृषी क्षेत्रासाठी समर्पित.</p>
+        <p>KhetiSaathi AI Engine · High-Precision Agricultural Intelligence Architecture</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Popup for Interactive Options -->
+  <div class="interactive-toast" id="interactive-toast"></div>
+
+  <!-- Floating Flowing Farmer Mascot Companion "Kisan Mitra" -->
+  <div class="floating-companion-mascot" id="floating-companion-mascot" title="Tap Kisan Mitra for Voice Tips!">
+    <div class="companion-avatar-wrap">
+      <img src="assets/kisan_mascot.jpg" alt="Kisan Mitra" class="companion-avatar-img" onerror="this.src='https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=400&q=80'">
+      <span class="companion-pulse-ring"></span>
+      <span class="companion-badge-tag">🎙️ शेती मित्र</span>
+    </div>
+    <div class="companion-bubble" id="companion-bubble">
+      👨‍🌾 " नॅनो युरिया वापरून एकरी ₹४,५०० ची बचत करा! मला टॅप करा. "
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       Mobile Smartphone Bottom Action Bar (< 768px)
+       ========================================================================== -->
+  <div class="mobile-bottom-bar">
+    <a href="#voice-assistant" class="mobile-nav-item">
+      <span class="icon">🎙️</span>
+      <span>बोलून विचारा</span>
+    </a>
+    <a href="#crop-scanner" class="mobile-nav-item">
+      <span class="icon">📸</span>
+      <span>पान स्कॅन</span>
+    </a>
+    <a href="#voice-assistant" class="mobile-fab-voice" title="Speak to Apna Kisan AI">
+      🎙️
+    </a>
+    <a href="http://localhost:3000/market" class="mobile-nav-item">
+      <span class="icon">📈</span>
+      <span>बाजारभाव</span>
+    </a>
+    <a href="http://localhost:3000/dashboard" class="mobile-nav-item">
+      <span class="icon">🚀</span>
+      <span>ॲप उघडा</span>
+    </a>
+  </div>
+
+  <!-- ==========================================================================
+       Interactive Login & Registration Modal
+       ========================================================================== -->
+  <div class="modal-backdrop" id="auth-modal">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="close-modal-btn">&times;</button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tab-login" data-i18n="modalLoginTitle">शेतकरी लॉगिन</button>
+        <button class="auth-tab-btn" id="tab-register" data-i18n="modalRegisterTitle">नवीन शेतकरी नोंदणी</button>
+      </div>
+
+      <div class="demo-account-chip" id="demo-farmer-chip">
+        <span>👨‍🌾 <strong data-i18n="quickDemo">झटपट डेमो: रमेश पाटील (१२ एकर, नागपूर)</strong></span>
+        <span style="font-weight:900">&rarr;</span>
+      </div>
+
+      <form class="auth-form" id="form-login">
+        <div class="form-field">
+          <label>मोबाईल नंबर (Mobile Number)</label>
+          <input type="tel" id="login-phone" placeholder="9876543210" required>
+        </div>
+        <div class="form-field">
+          <label>पासवर्ड (Password)</label>
+          <input type="password" id="login-pass" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:8px;" data-i18n="submitLogin">
+          लॉगिन करा व डॅशबोर्ड उघडा
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

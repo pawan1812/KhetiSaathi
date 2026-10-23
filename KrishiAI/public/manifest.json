@@ -1,0 +1,22 @@
+{
+  "name": "KhetiSaathi — Smart Agriculture & Financial Assistant",
+  "short_name": "KhetiSaathi",
+  "description": "AI-powered crop profit prediction, live APMC mandi prices, weather alerts, and crisis monitoring for Indian farmers.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F0F7F0",
+  "theme_color": "#2ECC71",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
