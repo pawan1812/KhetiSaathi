@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { executePythonAI } from "@/lib/pythonBridge";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
@@ -286,12 +287,32 @@ Return STRICTLY a JSON object matching this schema:
 }
 Output pure JSON only, without markdown backticks.`;
 
-    // Attempt live multi-model Gemini API calls
+    // 1. PRIMARY: Execute Python AI Vision Engine
     if (base64Data && base64Data.length > 50) {
+      try {
+        console.log("[KhetiSaathi AI] Invoking Python AI Vision Engine for real picture analysis...");
+        const pyResult = await executePythonAI("diagnose", {
+          image: base64Data,
+          language,
+        });
+
+        if (pyResult && (pyResult.cropName || pyResult.conditionName)) {
+          console.log("[KhetiSaathi AI] Successfully diagnosed via Python AI Vision Engine:", pyResult.cropName);
+          return NextResponse.json({
+            success: true,
+            modelUsed: "KhetiSaathi Python AI Engine (Gemini 3.5 Multimodal Vision)",
+            diagnosis: pyResult,
+          });
+        }
+      } catch (pyErr: any) {
+        console.warn("[KhetiSaathi AI] Python AI Engine error, attempting direct vision fallback:", pyErr?.message || pyErr);
+      }
+
+      // 2. FALLBACK: Direct live multimodal Gemini API calls
       for (const model of CANDIDATE_MODELS) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout per candidate
+          const timeoutId = setTimeout(() => controller.abort(), 14000);
 
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
           const res = await fetch(url, {
@@ -334,38 +355,58 @@ Output pure JSON only, without markdown backticks.`;
               console.log(`[KhetiSaathi AI] Photo diagnosis succeeded with model: ${model}`);
               return NextResponse.json({
                 success: true,
-                modelUsed: "KhetiSaathi AI Vision Engine",
+                modelUsed: `KhetiSaathi AI Vision Engine (${model})`,
                 diagnosis: parsed,
               });
             }
-          } else {
-            console.warn(`[KhetiSaathi AI] Model ${model} returned status ${res.status}`);
           }
         } catch (err: any) {
-          console.warn(`[KhetiSaathi AI] Model ${model} call failed:`, err?.message || err);
+          console.warn(`[KhetiSaathi AI] Direct model ${model} call failed:`, err?.message || err);
         }
       }
+
+      // If user uploaded a picture, do NOT return a canned/pre-made answer!
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            language === "mr"
+              ? "पिकाच्या पानाचे विश्लेषण करता आले नाही. कृपया पानाचा स्पष्ट व जवळून घेतलेला फोटो अपलोड करा."
+              : language === "hi"
+              ? "फसल की पत्ती का विश्लेषण करने में असमर्थ। कृपया पत्ती की स्पष्ट और केंद्रित फोटो अपलोड करें।"
+              : "Unable to analyze the leaf image. Please upload a clear, focused photograph of the crop leaf.",
+        },
+        { status: 422 }
+      );
     }
 
-    // High-Precision Knowledge Base Fallback
-    const fallbackKey =
-      sampleId && BUILTIN_ICAR_KNOWLEDGE[sampleId]
-        ? sampleId
-        : "soybean_rust";
-    const fallbackData = BUILTIN_ICAR_KNOWLEDGE[fallbackKey];
+    // Reference educational sample lookup if explicitly requested
+    if (sampleId && BUILTIN_ICAR_KNOWLEDGE[sampleId]) {
+      return NextResponse.json({
+        success: true,
+        modelUsed: "KhetiSaathi Agro Reference Protocol",
+        diagnosis: BUILTIN_ICAR_KNOWLEDGE[sampleId],
+      });
+    }
 
-    return NextResponse.json({
-      success: true,
-      modelUsed: "KhetiSaathi AI Diagnostic Engine (ICAR Standard Protocol)",
-      diagnosis: fallbackData,
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          language === "mr"
+            ? "कृपया स्कॅन करण्यासाठी पानाचा फोटो निवडा किंवा कॅमेऱ्याने फोटो काढा."
+            : language === "hi"
+            ? "कृपया स्कैन करने के लिए पत्ती की फोटो चुनें या कैमरे से फोटो लें।"
+            : "Please select or capture a leaf photo to begin real-time diagnosis.",
+      },
+      { status: 400 }
+    );
   } catch (err: any) {
     console.error("[KhetiSaathi AI Diagnose API Error]:", err);
     return NextResponse.json(
       {
         success: false,
-        error: "Diagnosis engine error",
-        diagnosis: BUILTIN_ICAR_KNOWLEDGE.soybean_rust,
+        error: err?.message || "Internal diagnosis engine error",
       },
       { status: 500 }
     );

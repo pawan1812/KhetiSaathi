@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { executePythonAI } from "@/lib/pythonBridge";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
@@ -123,7 +124,35 @@ VERIFIED AGRICULTURAL KNOWLEDGE REFERENCE:
       });
     }
 
-    // Try Gemini models in priority order
+    // 1. PRIMARY: Execute Python AI Engine
+    try {
+      console.log("[KhetiSaathi AI Chat] Invoking Python AI Engine...");
+      const pyResult = await executePythonAI("chat", {
+        messages,
+        farmerContext,
+        language: detectedLang,
+        image,
+      });
+
+      if (pyResult && pyResult.reply) {
+        return NextResponse.json({
+          reply: pyResult.reply,
+          choices: [
+            {
+              message: {
+                role: "assistant",
+                content: pyResult.reply,
+                reasoning_content: `[KhetiSaathi Python AI Engine]\n• Language: ${detectedLang === "mr" ? "Marathi (मराठी)" : detectedLang === "hi" ? "Hindi (हिंदी)" : "English"}\n• Mode: Real-time dynamic reasoning via Python & Gemini 3.5.`,
+              },
+            },
+          ],
+        });
+      }
+    } catch (pyErr: any) {
+      console.warn("[KhetiSaathi AI Chat] Python AI Engine error, attempting direct model fallback:", pyErr?.message || pyErr);
+    }
+
+    // 2. FALLBACK: Direct Gemini models in priority order
     for (const model of GEMINI_MODELS) {
       try {
         const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;

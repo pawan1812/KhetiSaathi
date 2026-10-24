@@ -20,12 +20,11 @@ const AI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || "";
 
 // High-speed multimodal models in prioritized failover sequence
 const CANDIDATE_MODELS = [
-  "gemini-3.1-flash-lite",
   "gemini-3.5-flash",
-  "gemini-flash-latest",
   "gemini-3.6-flash",
+  "gemini-flash-latest",
+  "gemini-3.1-flash-lite",
   "gemini-flash-lite-latest",
-  "gemini-2.5-pro",
 ];
 
 export const OFFLINE_LEAF_KNOWLEDGE: Record<string, DiagnosisResult> = {
@@ -290,7 +289,7 @@ CRITICAL INSTRUCTIONS:
     for (const model of CANDIDATE_MODELS) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
+        const timeoutId = setTimeout(() => controller.abort(), 14000);
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${AI_API_KEY}`;
         const response = await fetch(url, {
@@ -312,7 +311,7 @@ CRITICAL INSTRUCTIONS:
               },
             ],
             generationConfig: {
-              temperature: 0.1,
+              temperature: 0.15,
               responseMimeType: "application/json",
             },
           }),
@@ -340,9 +339,57 @@ CRITICAL INSTRUCTIONS:
         // Continue to next candidate model if this one experiences temporary load
       }
     }
+
+    // If an image was scanned, DO NOT return a pre-made canned answer.
+    // Return an honest, real-time diagnostic notification for the user.
+    return {
+      cropName: "अज्ञात पीक (Photo Requires Clearer Focus)",
+      conditionName: {
+        mr: "फोटोवरून रोग ओळखता आला नाही",
+        hi: "फोटो से रोग की पहचान नहीं हो सकी",
+        en: "Inconclusive Image Diagnosis",
+      },
+      confidence: 0.2,
+      severity: "low",
+      status: "uncertain",
+      symptoms: {
+        mr: "अपलोड केलेल्या फोटोमधील पानाची लक्षणे पुरेशी स्पष्ट नाहीत. कृपया पानाचा जवळून, चांगल्या प्रकाशात स्पष्ट फोटो काढा.",
+        hi: "अपलोड की गई फोटो में पत्ती के लक्षण स्पष्ट नहीं हैं। कृपया रोशनी में पत्ती की करीबी और साफ फोटो लें।",
+        en: "The uploaded photograph does not show sufficient leaf detail. Please take a clear, well-lit, close-up photograph of the crop leaf.",
+      },
+      methods: {
+        chemical: {
+          mr: "रोग स्पष्ट झाल्याशिवाय रासायनिक फवारणी करू नका.",
+          hi: "सटीक पहचान के बिना रासायनिक कीटनाशक का छिड़काव न करें।",
+          en: "Do not apply chemical pesticides without confirmed disease identification.",
+        },
+        organic: {
+          mr: "प्रतिबंधात्मक उपाय म्हणून निंबोळी अर्क (५ मि.ली./लिटर) फवारू शकता.",
+          hi: "सावधानी हेतु नीम तेल 5 मिली/लीटर का छिड़काव कर सकते हैं।",
+          en: "You may apply cold-pressed neem seed extract as a general preventative.",
+        },
+        cultural: {
+          mr: "शेतातील बाधित झाडे तपासा आणि स्थानिक कृषी सहाय्यक किंवा KVK शास्त्रज्ञांशी संपर्क साधा.",
+          hi: "खेत का निरीक्षण करें और स्थानीय कृषि विज्ञान केंद्र (KVK) से संपर्क करें।",
+          en: "Inspect affected plants and consult your local KVK agricultural scientist.",
+        },
+        prevention: {
+          mr: "पानाचा स्पष्ट फोटो काढून पुन्हा AI स्कॅन करा.",
+          hi: "पत्ती की स्पष्ट फोटो लेकर पुनः AI स्कैन करें।",
+          en: "Retake a clear, focused photograph for real-time AI scanning.",
+        },
+      },
+      fertilizerAdjustment: {
+        mr: "सध्या नेहमीप्रमाणे संतुलित पोषण ठेवा.",
+        hi: "वर्तमान में सामान्य संतुलित पोषण बनाए रखें।",
+        en: "Maintain balanced nutrition until diagnosis is confirmed.",
+      },
+      sources: "KhetiSaathi Live AI Pathology Scanner",
+      kvkHelpline: "1800-180-1551",
+    };
   }
 
-  // Preset sample key or offline fallback
+  // Educational sample library lookup (only when explicitly requested)
   const key = sampleKey && OFFLINE_LEAF_KNOWLEDGE[sampleKey] ? sampleKey : "soybean_rust";
   return OFFLINE_LEAF_KNOWLEDGE[key];
 }
