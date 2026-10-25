@@ -27,13 +27,14 @@ export default function AuthPage() {
   const [tab, setTab] = useState<"login" | "register">(initialMode);
 
   // Login Form State
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Registration Form State
   const [regName, setRegName] = useState("");
+  const [regUsername, setRegUsername] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regAcres, setRegAcres] = useState(10);
@@ -54,22 +55,23 @@ export default function AuthPage() {
   };
 
   // STRICT DATABASE LOGIN: Must verify encrypted password against database
-  // STRICT DATABASE LOGIN: Must verify encrypted password against database
   const handleLogin = async () => {
     setError("");
-    if (!phone.trim() || !password.trim()) {
+    const rawId = identifier.trim();
+    if (!rawId || !password.trim()) {
       setError(
         language === "mr"
-          ? "कृपया फोन नंबर आणि पासवर्ड टाका."
+          ? "कृपया वापरकर्ता नाव किंवा मोबाईल नंबर आणि पासवर्ड प्रविष्ट करा."
           : language === "hi"
-          ? "कृपया फोन नंबर और पासवर्ड दर्ज करें।"
-          : "Please enter your phone number and password."
+          ? "कृपया यूज़रनेम या मोबाइल नंबर और पासवर्ड दर्ज करें।"
+          : "Please enter your username or phone number and password."
       );
       return;
     }
 
     setLoading(true);
-    const cleanPhone = phone.replace(/[^0-9]/g, "").slice(-10);
+    const cleanPhone = rawId.replace(/[^0-9]/g, "").slice(-10);
+    const cleanUsername = rawId.toLowerCase().replace(/[^a-z0-9_]/g, "");
 
     try {
       // 1. Attempt API login with a strict 3.5s timeout so Vercel never hangs
@@ -77,7 +79,9 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.trim(),
+          identifier: rawId,
+          username: cleanUsername,
+          phone: rawId,
           password: password.trim(),
         }),
         signal: AbortSignal.timeout(3500),
@@ -104,60 +108,83 @@ export default function AuthPage() {
       console.warn("API login slow/error, checking direct Firebase database verification:", err);
       // 2. Resilient Cloud Verification directly from Firebase Realtime DB REST API (sub-100ms)
       try {
-        const idxRes = await fetch(
-          `https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/phone_to_uid/${cleanPhone}.json`,
-          { signal: AbortSignal.timeout(3000) }
-        );
+        let uid = "";
+        // Check username index first if valid username
+        if (cleanUsername) {
+          try {
+            const userIdxRes = await fetch(
+              `https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/username_to_uid/${cleanUsername}.json`,
+              { signal: AbortSignal.timeout(3000) }
+            );
+            if (userIdxRes.ok) {
+              uid = await userIdxRes.json();
+            }
+          } catch {}
+        }
 
-        if (idxRes.ok) {
-          const uid = await idxRes.json();
-          if (uid) {
-            const [profileRes, authRes] = await Promise.all([
-              fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/users/${uid}/profile.json`),
-              fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/users/${uid}/auth.json`),
-            ]);
+        // If not found by username and input has 10 digits, check phone index
+        if (!uid && cleanPhone.length === 10) {
+          try {
+            const phoneIdxRes = await fetch(
+              `https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/phone_to_uid/${cleanPhone}.json`,
+              { signal: AbortSignal.timeout(3000) }
+            );
+            if (phoneIdxRes.ok) {
+              uid = await phoneIdxRes.json();
+            }
+          } catch {}
+        }
 
-            if (profileRes.ok) {
-              const profile = await profileRes.json();
-              const auth = authRes.ok ? await authRes.json() : {};
+        if (uid) {
+          const [profileRes, authRes] = await Promise.all([
+            fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/users/${uid}/profile.json`),
+            fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/users/${uid}/auth.json`),
+          ]);
 
-              if (profile && profile.uid) {
-                // Strict password match check (accept bcrypt match or plaintext fallback)
-                const enteredPass = password.trim();
-                const storedHash = auth?.passwordHash || profile?.passwordHash || "";
-                const storedPlain = auth?.plainPassword || profile?.password || "";
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            const auth = authRes.ok ? await authRes.json() : {};
 
-                let isMatch = false;
-                if (storedPlain && storedPlain === enteredPass) {
+            if (profile && profile.uid) {
+              // Strict password match check (accept bcrypt match or plaintext fallback)
+              const enteredPass = password.trim();
+              const storedHash = auth?.passwordHash || profile?.passwordHash || "";
+              const storedPlain = auth?.plainPassword || profile?.password || "";
+
+              let isMatch = false;
+              if (storedPlain && storedPlain === enteredPass) {
+                isMatch = true;
+              } else if (storedHash) {
+                // Direct or demo password match
+                const demoMatch = DEMO_USERS.find(
+                  (d) =>
+                    (d.username && d.username.toLowerCase() === cleanUsername) ||
+                    (cleanPhone.length === 10 && d.phone.replace(/[^0-9]/g, "").slice(-10) === cleanPhone)
+                );
+                if (demoMatch && demoMatch.password === enteredPass) {
                   isMatch = true;
-                } else if (storedHash) {
-                  // Direct or demo password match
-                  const demoMatch = DEMO_USERS.find((d) => d.phone.replace(/[^0-9]/g, "").slice(-10) === cleanPhone);
-                  if (demoMatch && demoMatch.password === enteredPass) {
-                    isMatch = true;
-                  } else {
-                    isMatch = storedHash === enteredPass;
-                  }
-                }
-
-                if (isMatch || !storedHash) {
-                  document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: profile.uid, phone: profile.phone, time: Date.now() }))}; path=/; max-age=2592000`;
-                  document.cookie = `khetisaathi_uid=${profile.uid}; path=/; max-age=2592000`;
-                  setAuthenticatedUser(profile);
-                  const destination = searchParams.get("from") || "/dashboard";
-                  router.push(destination);
-                  return;
                 } else {
-                  setError(
-                    language === "mr"
-                      ? "चुकीचा पासवर्ड! कृपया पुन्हा प्रयत्न करा (Incorrect password)."
-                      : language === "hi"
-                      ? "गलत पासवर्ड! कृपया पुनः प्रयास करें (Incorrect password)।"
-                      : "Incorrect password. Please verify and try again."
-                  );
-                  setLoading(false);
-                  return;
+                  isMatch = storedHash === enteredPass;
                 }
+              }
+
+              if (isMatch || !storedHash) {
+                document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: profile.uid, phone: profile.phone, time: Date.now() }))}; path=/; max-age=2592000`;
+                document.cookie = `khetisaathi_uid=${profile.uid}; path=/; max-age=2592000`;
+                setAuthenticatedUser(profile);
+                const destination = searchParams.get("from") || "/dashboard";
+                router.push(destination);
+                return;
+              } else {
+                setError(
+                  language === "mr"
+                    ? "चुकीचा पासवर्ड! कृपया पुन्हा प्रयत्न करा (Incorrect password)."
+                    : language === "hi"
+                    ? "गलत पासवर्ड! कृपया पुनः प्रयास करें (Incorrect password)।"
+                    : "Incorrect password. Please verify and try again."
+                );
+                setLoading(false);
+                return;
               }
             }
           }
@@ -167,7 +194,12 @@ export default function AuthPage() {
       }
 
       // Check if it's a known demo user
-      const demoUser = DEMO_USERS.find((d) => d.phone.replace(/[^0-9]/g, "").slice(-10) === cleanPhone);
+      const demoUser = DEMO_USERS.find(
+        (d) =>
+          (d.username && d.username.toLowerCase() === cleanUsername) ||
+          (cleanPhone.length === 10 && d.phone.replace(/[^0-9]/g, "").slice(-10) === cleanPhone)
+      );
+
       if (demoUser && demoUser.password === password.trim()) {
         document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: demoUser.uid, phone: demoUser.phone, time: Date.now() }))}; path=/; max-age=2592000`;
         document.cookie = `khetisaathi_uid=${demoUser.uid}; path=/; max-age=2592000`;
@@ -179,10 +211,10 @@ export default function AuthPage() {
 
       setError(
         language === "mr"
-          ? "फोन नंबर किंवा पासवर्ड चुकीचा आहे (Invalid credentials)."
+          ? "वापरकर्ता नाव/फोन किंवा पासवर्ड चुकीचा आहे (Invalid credentials)."
           : language === "hi"
-          ? "फ़ोन नंबर या पासवर्ड गलत है (Invalid credentials)।"
-          : "Invalid phone number or password. Please verify and try again."
+          ? "यूज़रनेम/फ़ोन या पासवर्ड गलत है (Invalid credentials)।"
+          : "Invalid username/phone or password. Please verify and try again."
       );
       setLoading(false);
     }
@@ -215,6 +247,11 @@ export default function AuthPage() {
 
     setLoading(true);
     const cleanPhone = regPhone.replace(/[^0-9]/g, "").slice(-10);
+    const finalUsername = (
+      regUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, "") ||
+      regName.trim().toLowerCase().replace(/[^a-z0-9_]/g, "") ||
+      `kisan_${cleanPhone.slice(-4)}`
+    ).slice(0, 20);
 
     try {
       // 1. Try serverless registration endpoint with strict 3.5s timeout
@@ -222,6 +259,7 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          username: finalUsername,
           name: regName.trim(),
           phone: regPhone.trim(),
           password: regPassword.trim(),
@@ -284,6 +322,7 @@ export default function AuthPage() {
 
         const newUser: DemoUser = {
           uid,
+          username: finalUsername,
           name: regName.trim(),
           phone: `+91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
           state: stateName,
@@ -297,7 +336,7 @@ export default function AuthPage() {
           healthScore: 78,
           kpi: dynamicKpi,
           recentActivities: [
-            { id: `act-${Date.now()}`, icon: "🌱", text: `KhetiSaathi शेतकरी खात्याची नोंदणी — ${regAcres} एकर`, time: "Just now" }
+            { id: `act-${Date.now()}`, icon: "🌱", text: `KhetiSaathi शेतकरी खात्याची नोंदणी (@${finalUsername}) — ${regAcres} एकर`, time: "Just now" }
           ],
           loans: [
             {
@@ -375,11 +414,17 @@ export default function AuthPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               uid,
+              username: finalUsername,
               phone: `+91 ${cleanPhone}`,
               phoneClean: cleanPhone,
               plainPassword: regPassword.trim(),
               updatedAt: new Date().toISOString(),
             }),
+          }),
+          fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/username_to_uid/${finalUsername}.json`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(uid),
           }),
           fetch(`https://khetisaathi-a7e6c-default-rtdb.firebaseio.com/phone_to_uid/${cleanPhone}.json`, {
             method: "PUT",
@@ -419,7 +464,7 @@ export default function AuthPage() {
 
   const fillCredentials = (u: (typeof DEMO_USERS)[0]) => {
     setTab("login");
-    setPhone(u.phone.replace("+91 ", "").replace(/\s/g, ""));
+    setIdentifier(u.username || u.phone.replace("+91 ", "").replace(/\s/g, ""));
     setPassword(u.password || "");
     setError("");
   };
@@ -428,7 +473,8 @@ export default function AuthPage() {
     setLoading(true);
     setError("");
     setTab("login");
-    setPhone(u.phone.replace("+91 ", "").replace(/\s/g, ""));
+    const idVal = u.username || u.phone.replace("+91 ", "").replace(/\s/g, "");
+    setIdentifier(idVal);
     setPassword(u.password || "");
 
     try {
@@ -436,6 +482,8 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          identifier: idVal,
+          username: u.username || "",
           phone: u.phone,
           password: u.password || "",
         }),
@@ -576,15 +624,15 @@ export default function AuthPage() {
 
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
-                  {t.auth.phoneLabel}
+                  {t.auth.loginIdentifierLabel || "Username or Phone Number"}
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <User className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
-                    type="tel"
-                    placeholder={t.auth.phonePlaceholder}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    type="text"
+                    placeholder={t.auth.loginIdentifierPlaceholder || "e.g. rajesh or 9876543210"}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-[var(--bg-muted)] text-[var(--text-primary)]"
                   />
@@ -625,18 +673,33 @@ export default function AuthPage() {
                 {t.auth.registerTitle}
               </h2>
 
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
-                  {t.auth.nameLabel}
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                    {t.auth.nameLabel}
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder={t.auth.namePlaceholder}
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-[var(--bg-muted)] text-[var(--text-primary)]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                    {t.auth.usernameLabel || "Username"}
+                  </label>
                   <input
                     type="text"
-                    placeholder={t.auth.namePlaceholder}
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-[var(--bg-muted)] text-[var(--text-primary)]"
+                    placeholder={t.auth.usernamePlaceholder || "e.g. rajesh_patil"}
+                    value={regUsername}
+                    onChange={(e) => setRegUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                    className="w-full p-2.5 rounded-xl border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-[var(--bg-muted)] text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -803,6 +866,10 @@ export default function AuthPage() {
 
                     {/* Database Credentials Box */}
                     <div className="p-2 rounded-xl bg-[var(--bg-muted)] border border-[var(--border)] text-[11px] font-mono space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-[var(--text-muted)] font-sans font-bold uppercase">User:</span>
+                        <span className="font-extrabold text-emerald-700 dark:text-emerald-300 select-all">{u.username || "farmer"}</span>
+                      </div>
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-[var(--text-muted)] font-sans font-bold uppercase">Phone:</span>
                         <span className="font-bold text-[var(--text-primary)] select-all">{displayPhone}</span>

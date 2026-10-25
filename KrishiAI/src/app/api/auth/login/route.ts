@@ -7,19 +7,20 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { phone, password } = body;
+    const identifier = body.identifier || body.username || body.phone;
+    const { password } = body;
 
-    if (!phone || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
         {
           success: false,
-          error: "कृपया मोबाईल नंबर आणि पासवर्ड दोन्ही प्रविष्ट करा (Please provide both phone number and password).",
+          error: "कृपया युजरनेम किंवा मोबाईल नंबर आणि पासवर्ड दोन्ही प्रविष्ट करा (Please provide username or mobile number and password).",
         },
         { status: 400 }
       );
     }
 
-    const result = await authenticateFarmer(phone, password);
+    const result = await authenticateFarmer(identifier, password);
 
     if (!result.success || !result.user) {
       return NextResponse.json(

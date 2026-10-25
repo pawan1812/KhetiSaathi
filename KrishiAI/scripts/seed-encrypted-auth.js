@@ -26,6 +26,7 @@ const DEMO_USERS = [
   {
     uid: "user-001",
     name: "Rajesh Kumar",
+    username: "rajesh",
     phone: "+91 98765 43210",
     plainPassword: "demo123",
     state: "Punjab",
@@ -41,6 +42,7 @@ const DEMO_USERS = [
   {
     uid: "user-002",
     name: "Priya Devi",
+    username: "priya",
     phone: "+91 87654 32109",
     plainPassword: "farmer2",
     state: "Uttar Pradesh",
@@ -56,6 +58,7 @@ const DEMO_USERS = [
   {
     uid: "user-003",
     name: "Suresh Patel",
+    username: "suresh",
     phone: "+91 76543 21098",
     plainPassword: "agri2026",
     state: "Maharashtra",
@@ -104,6 +107,7 @@ async function seedEncryptedUsers() {
     const storedUser = {
       uid: user.uid,
       name: user.name,
+      username: user.username,
       phone: user.phone,
       phoneClean: cleanPhone,
       passwordHash: passwordHash, // ONLY ENCRYPTED HASH IS SAVED
@@ -124,6 +128,7 @@ async function seedEncryptedUsers() {
     await rtdb.ref(`users/${user.uid}/profile`).set({
       uid: user.uid,
       name: user.name,
+      username: user.username,
       phone: user.phone,
       phoneClean: cleanPhone,
       state: user.state,
@@ -141,15 +146,19 @@ async function seedEncryptedUsers() {
 
     await rtdb.ref(`users/${user.uid}/auth`).set({
       uid: user.uid,
+      username: user.username,
       phone: user.phone,
       phoneClean: cleanPhone,
       passwordHash: passwordHash, // Encrypted!
       updatedAt: storedUser.updatedAt,
     });
 
-    // Write index for instant lookup
+    // Write indexes for instant lookup (phone and username)
     await rtdb.ref(`phone_to_uid/${cleanPhone}`).set(user.uid);
-    console.log(`  -> Realtime Database written for ${user.name}`);
+    if (user.username) {
+      await rtdb.ref(`username_to_uid/${user.username.toLowerCase()}`).set(user.uid);
+    }
+    console.log(`  -> Realtime Database written for ${user.name} (username: ${user.username})`);
 
     // 2. Write to Firestore
     await db.collection("users").doc(user.uid).set(storedUser, { merge: true });

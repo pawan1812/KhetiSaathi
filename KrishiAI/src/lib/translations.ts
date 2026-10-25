@@ -144,6 +144,10 @@ export interface Translations {
     registerTitle: string;
     phoneLabel: string;
     phonePlaceholder: string;
+    loginIdentifierLabel: string;
+    loginIdentifierPlaceholder: string;
+    usernameLabel: string;
+    usernamePlaceholder: string;
     passwordLabel: string;
     passwordPlaceholder: string;
     nameLabel: string;
@@ -500,6 +504,10 @@ export const translations: Record<Language, Translations> = {
       registerTitle: "Register Your Farm & Join KhetiSaathi",
       phoneLabel: "Phone Number",
       phonePlaceholder: "+91 98765 43210",
+      loginIdentifierLabel: "Username or Phone Number",
+      loginIdentifierPlaceholder: "e.g. rajesh or 9876543210",
+      usernameLabel: "Username",
+      usernamePlaceholder: "e.g. rajesh_patil",
       passwordLabel: "Password",
       passwordPlaceholder: "Enter secure password",
       nameLabel: "Farmer Full Name",
@@ -873,6 +881,10 @@ export const translations: Record<Language, Translations> = {
       registerTitle: "नया किसान खाता बनाएं एवं सिंक करें",
       phoneLabel: "मोबाइल नंबर",
       phonePlaceholder: "+91 98765 43210",
+      loginIdentifierLabel: "यूज़रनेम या मोबाइल नंबर",
+      loginIdentifierPlaceholder: "जैसे: rajesh या 9876543210",
+      usernameLabel: "यूज़रनेम",
+      usernamePlaceholder: "जैसे: rajesh_patil",
       passwordLabel: "पासवर्ड",
       passwordPlaceholder: "सुरक्षित पासवर्ड डालें",
       nameLabel: "किसान का पूरा नाम",
@@ -1246,6 +1258,10 @@ export const translations: Record<Language, Translations> = {
       registerTitle: "नवीन शेतकरी खाते तयार करा",
       phoneLabel: "मोबाईल नंबर",
       phonePlaceholder: "+91 98765 43210",
+      loginIdentifierLabel: "वापरकर्ता नाव किंवा मोबाईल नंबर",
+      loginIdentifierPlaceholder: "उदा: rajesh किंवा 9876543210",
+      usernameLabel: "वापरकर्ता नाव (Username)",
+      usernamePlaceholder: "उदा: rajesh_patil",
       passwordLabel: "पासवर्ड",
       passwordPlaceholder: "सुरक्षित पासवर्ड प्रविष्ट करा",
       nameLabel: "शेतकऱ्याचे संपूर्ण नाव",

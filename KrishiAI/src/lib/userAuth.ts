@@ -5,6 +5,7 @@
 export interface DemoUser {
   uid: string;
   name: string;
+  username?: string;
   phone: string;
   password?: string;
   passwordHash?: string;
@@ -36,6 +37,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     uid: "user-001",
     name: "Rajesh Kumar",
+    username: "rajesh",
     phone: "+91 98765 43210",
     password: "demo123",
     state: "Punjab",
@@ -80,6 +82,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     uid: "user-002",
     name: "Priya Devi",
+    username: "priya",
     phone: "+91 87654 32109",
     password: "farmer2",
     state: "Uttar Pradesh",
@@ -122,6 +125,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     uid: "user-003",
     name: "Suresh Patel",
+    username: "suresh",
     phone: "+91 76543 21098",
     password: "agri2026",
     state: "Maharashtra",

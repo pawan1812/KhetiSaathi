@@ -7,9 +7,10 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { name, phone, password, acres, crops, state, district, village } = body;
+    const { username, name, phone, password, acres, crops, state, district, village } = body;
 
     const result = await registerFarmer({
+      username,
       name,
       phone,
       password,

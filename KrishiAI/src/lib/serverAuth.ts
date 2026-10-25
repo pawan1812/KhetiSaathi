@@ -23,6 +23,12 @@ export function cleanPhoneNumber(phone: string): string {
   return digits.length >= 10 ? digits.slice(-10) : digits;
 }
 
+// Normalize username to lowercase alphanumeric + underscore
+export function cleanUsername(username: string): string {
+  if (!username) return "";
+  return username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+}
+
 // Timeout wrapper to prevent Vercel 504 serverless hangs
 async function withTimeout<T>(promise: Promise<T>, ms = 2500, fallback: T): Promise<T> {
   let timer: NodeJS.Timeout;
@@ -60,6 +66,7 @@ export function sanitizeUser(user: StoredUser | (DemoUser & { passwordHash?: str
 // Memory cache to ensure instant performance on serverless
 const memoryUserDb: Record<string, StoredUser> = {};
 const memoryPhoneIndex: Record<string, string> = {};
+const memoryUsernameIndex: Record<string, string> = {};
 let isSeeded = false;
 
 // Pre-seed demo users with encrypted passwords in database
@@ -69,9 +76,10 @@ export async function ensureDemoUsersSeeded(): Promise<void> {
   try {
     for (const demo of DEMO_USERS) {
       const cleanPhone = cleanPhoneNumber(demo.phone);
-      if (!cleanPhone) continue;
+      const cleanUser = cleanUsername(demo.username || "");
+      if (!cleanPhone && !cleanUser) continue;
 
-      const existing = await findUserByPhone(cleanPhone);
+      const existing = (cleanUser ? await findUserByUsername(cleanUser) : null) || (cleanPhone ? await findUserByPhone(cleanPhone) : null);
       if (!existing) {
         const hashed = await hashPassword(demo.password || "kheti@2026");
         const stored: StoredUser = {
@@ -93,17 +101,21 @@ export async function ensureDemoUsersSeeded(): Promise<void> {
 // Save complete user record to RTDB REST API, Firebase Admin & In-Memory
 export async function saveStoredUserToDatabases(storedUser: StoredUser): Promise<void> {
   const { uid, phoneClean } = storedUser;
+  const cleanUser = cleanUsername(storedUser.username || "");
 
   // 1. Update In-Memory cache
   memoryUserDb[uid] = { ...storedUser };
   if (phoneClean) {
     memoryPhoneIndex[phoneClean] = uid;
   }
+  if (cleanUser) {
+    memoryUsernameIndex[cleanUser] = uid;
+  }
 
   // 2. Direct HTTPS REST API to Firebase Realtime Database (100% reliable on Vercel)
   try {
     const safe = sanitizeUser(storedUser);
-    await Promise.allSettled([
+    const puts = [
       fetch(`${RTDB_BASE_URL}/users/${uid}/profile.json`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -114,20 +126,36 @@ export async function saveStoredUserToDatabases(storedUser: StoredUser): Promise
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid: storedUser.uid,
+          username: storedUser.username || "",
           phone: storedUser.phone,
           phoneClean: storedUser.phoneClean,
           passwordHash: storedUser.passwordHash,
           updatedAt: storedUser.updatedAt,
         }),
       }),
-      phoneClean
-        ? fetch(`${RTDB_BASE_URL}/phone_to_uid/${phoneClean}.json`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(uid),
-          })
-        : Promise.resolve(),
-    ]);
+    ];
+
+    if (phoneClean) {
+      puts.push(
+        fetch(`${RTDB_BASE_URL}/phone_to_uid/${phoneClean}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(uid),
+        })
+      );
+    }
+
+    if (cleanUser) {
+      puts.push(
+        fetch(`${RTDB_BASE_URL}/username_to_uid/${cleanUser}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(uid),
+        })
+      );
+    }
+
+    await Promise.allSettled(puts);
   } catch (err: unknown) {
     console.warn(`[RTDB REST] Save warning for ${uid}:`, (err as Error)?.message);
   }
@@ -264,6 +292,84 @@ export async function findUserByPhone(rawPhone: string): Promise<StoredUser | nu
   return null;
 }
 
+// Find user in database by Username
+export async function findUserByUsername(rawUsername: string): Promise<StoredUser | null> {
+  const cleanUser = cleanUsername(rawUsername);
+  if (!cleanUser) return null;
+
+  // 1. Memory check
+  if (memoryUsernameIndex[cleanUser] && memoryUserDb[memoryUsernameIndex[cleanUser]]) {
+    return memoryUserDb[memoryUsernameIndex[cleanUser]];
+  }
+
+  // 2. Realtime Database REST API
+  try {
+    const idxRes = await withTimeout(
+      fetch(`${RTDB_BASE_URL}/username_to_uid/${cleanUser}.json`),
+      2000,
+      null as Response | null
+    );
+
+    if (idxRes && idxRes.ok) {
+      const uid = await idxRes.json();
+      if (uid && typeof uid === "string") {
+        const user = await findUserByUid(uid);
+        if (user) {
+          memoryUsernameIndex[cleanUser] = uid;
+          return user;
+        }
+      }
+    }
+  } catch (err: unknown) {
+    console.warn(`[RTDB REST] Username lookup error for ${cleanUser}:`, (err as Error)?.message);
+  }
+
+  // 3. Fallback to DEMO_USERS
+  const demoMatch = DEMO_USERS.find((d) => cleanUsername(d.username || "") === cleanUser);
+  if (demoMatch) {
+    const cleanPhone = cleanPhoneNumber(demoMatch.phone);
+    const hashed = await hashPassword(demoMatch.password || "kheti@2026");
+    const stored: StoredUser = {
+      ...demoMatch,
+      passwordHash: hashed,
+      phoneClean: cleanPhone,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveStoredUserToDatabases(stored).catch(() => {});
+    return stored;
+  }
+
+  return null;
+}
+
+// Find user in database by Identifier (either username or phone)
+export async function findUserByIdentifier(identifier: string): Promise<StoredUser | null> {
+  if (!identifier) return null;
+  const trimmed = identifier.trim();
+
+  // If identifier has 10+ digits without letters, try phone first
+  const cleanDigits = cleanPhoneNumber(trimmed);
+  if (cleanDigits.length >= 10 && !/[a-zA-Z]/.test(trimmed)) {
+    const byPhone = await findUserByPhone(cleanDigits);
+    if (byPhone) return byPhone;
+  }
+
+  // Try username
+  const cleanUser = cleanUsername(trimmed);
+  if (cleanUser) {
+    const byUser = await findUserByUsername(cleanUser);
+    if (byUser) return byUser;
+  }
+
+  // Fallback try phone
+  if (cleanDigits.length >= 10) {
+    return await findUserByPhone(cleanDigits);
+  }
+
+  return null;
+}
+
 // Find user in database by UID
 export async function findUserByUid(uid: string): Promise<StoredUser | null> {
   if (!uid) return null;
@@ -286,12 +392,15 @@ export async function findUserByUid(uid: string): Promise<StoredUser | null> {
       if (profile && profile.uid) {
         const user: StoredUser = {
           ...profile,
+          username: profile.username || auth?.username || "",
           passwordHash: auth?.passwordHash || profile.passwordHash,
           phoneClean: auth?.phoneClean || profile.phoneClean || cleanPhoneNumber(profile.phone),
           createdAt: profile.createdAt || new Date().toISOString(),
           updatedAt: auth?.updatedAt || new Date().toISOString(),
         };
         memoryUserDb[uid] = user;
+        if (user.phoneClean) memoryPhoneIndex[user.phoneClean] = uid;
+        if (user.username) memoryUsernameIndex[cleanUsername(user.username)] = uid;
         return user;
       }
     }
@@ -317,16 +426,16 @@ export async function findUserByUid(uid: string): Promise<StoredUser | null> {
   return null;
 }
 
-// Strict Database Login Authentication
+// Strict Database Login Authentication (Supports Username OR Mobile Number)
 export async function authenticateFarmer(
-  rawPhone: string,
+  rawIdentifier: string,
   plainTextPassword: string
 ): Promise<{ success: boolean; error?: string; user?: SafeUser; sessionToken?: string }> {
-  const cleanPhone = cleanPhoneNumber(rawPhone);
-  if (!cleanPhone || cleanPhone.length < 10) {
+  const identifier = (rawIdentifier || "").trim();
+  if (!identifier) {
     return {
       success: false,
-      error: "कृपया १० अंकी वैध मोबाईल नंबर टाका (Please enter a valid 10-digit mobile number).",
+      error: "कृपया युजरनेम किंवा मोबाईल नंबर टाका (Please enter your username or mobile number).",
     };
   }
 
@@ -337,13 +446,13 @@ export async function authenticateFarmer(
     };
   }
 
-  // 1. Search database for user
-  const user = await findUserByPhone(cleanPhone);
+  // 1. Search database for user by Username or Phone
+  const user = await findUserByIdentifier(identifier);
 
   if (!user) {
     return {
       success: false,
-      error: "या फोन नंबरसह शेतकरी खाते डेटाबेसमध्ये सापडले नाही. कृपया प्रथम नोंदणी करा (No account found in database with this phone number. Please register first).",
+      error: "या युजरनेम किंवा फोन नंबरसह खाते डेटाबेसमध्ये सापडले नाही. कृपया प्रथम नोंदणी करा (No account found with this username or phone number. Please register first).",
     };
   }
 
@@ -362,6 +471,7 @@ export async function authenticateFarmer(
   const sessionToken = Buffer.from(
     JSON.stringify({
       uid: user.uid,
+      username: user.username || "",
       phone: user.phone,
       time: Date.now(),
     })
@@ -374,9 +484,10 @@ export async function authenticateFarmer(
   };
 }
 
-// Strict Database Registration
+// Strict Database Registration with Username support
 export async function registerFarmer(data: {
   name: string;
+  username?: string;
   phone: string;
   password: string;
   acres?: number;
@@ -387,8 +498,10 @@ export async function registerFarmer(data: {
 }): Promise<{ success: boolean; error?: string; user?: SafeUser; sessionToken?: string }> {
   const name = (data.name || "").trim();
   const rawPhone = (data.phone || "").trim();
+  const rawUsername = (data.username || "").trim();
   const plainTextPassword = (data.password || "").trim();
   const cleanPhone = cleanPhoneNumber(rawPhone);
+  const cleanUser = cleanUsername(rawUsername);
 
   if (!name || name.length < 2) {
     return { success: false, error: "कृपया आपले पूर्ण नाव प्रविष्ट करा (Please enter your full name)." };
@@ -401,6 +514,23 @@ export async function registerFarmer(data: {
       success: false,
       error: "पासवर्ड किमान ६ अक्षरांचा असावा (Password must be at least 6 characters long).",
     };
+  }
+
+  // Check username uniqueness if provided
+  if (cleanUser) {
+    if (cleanUser.length < 3) {
+      return {
+        success: false,
+        error: "युजरनेम किमान ३ अक्षरांचा असावा (Username must be at least 3 characters long).",
+      };
+    }
+    const existingUserByUsername = await findUserByUsername(cleanUser);
+    if (existingUserByUsername) {
+      return {
+        success: false,
+        error: "हा युजरनेम आधीच वापरला आहे. कृपया दुसरा युजरनेम निवडा (This username is already taken. Please choose another).",
+      };
+    }
   }
 
   // Check if phone already registered in database
@@ -498,9 +628,12 @@ export async function registerFarmer(data: {
     },
   ];
 
+  const assignedUsername = cleanUser || `kisan_${cleanPhone.slice(-4)}`;
+
   const storedUser: StoredUser = {
     uid,
     name,
+    username: assignedUsername,
     phone: `+91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
     phoneClean: cleanPhone,
     passwordHash,
