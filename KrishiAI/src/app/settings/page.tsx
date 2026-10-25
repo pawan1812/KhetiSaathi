@@ -52,20 +52,47 @@ const SOIL_TYPES = [
 export default function SettingsPage() {
   const { language, setLanguage, theme, toggleTheme } = useAppStore();
   const t = getTranslation(language);
-
-  const [user, setUser] = useState<DemoUser>(() => getCurrentUser());
+  const currentUser = getCurrentUser();
+  const fallbackUser: DemoUser = {
+    uid: "user-default",
+    name: "Kisan Partner",
+    phone: "+91 98765 43210",
+    state: "Maharashtra",
+    district: "Nagpur",
+    village: "Kalmeshwar",
+    acres: 10,
+    crops: ["Cotton", "Soybean"],
+    avatar: "KP",
+    aadhaar_last4: "4523",
+    bankAccount: "SBI Agri Branch",
+    healthScore: 78,
+    kpi: {
+      netProfitForecast: 420000,
+      netProfitChange: 14.5,
+      landCoverage: 10,
+      landUtilization: 92,
+      activeLoans: 1,
+      totalLoanAmount: 250000,
+      schemeBenefits: 12000,
+      schemesApplied: 3,
+    },
+    recentActivities: [],
+    loans: [],
+    expenses: [],
+  };
+  const [user, setUser] = useState<DemoUser>(currentUser || fallbackUser);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Editable Profile fields
-  const [editName, setEditName] = useState(user.name);
-  const [editPhone, setEditPhone] = useState(user.phone);
-  const [editAcres, setEditAcres] = useState(user.acres);
-  const [editCrops, setEditCrops] = useState<string[]>(user.crops || ["Wheat"]);
-  const [editState, setEditState] = useState(user.state);
-  const [editDistrict, setEditDistrict] = useState(user.district);
-  const [editVillage, setEditVillage] = useState(user.village);
+  const [editName, setEditName] = useState(currentUser?.name || "");
+  const [editPhone, setEditPhone] = useState(currentUser?.phone || "");
+  const [editAcres, setEditAcres] = useState(currentUser?.acres || 5);
+  const [editCrops, setEditCrops] = useState<string[]>(currentUser?.crops || ["Wheat"]);
+  const [editState, setEditState] = useState(currentUser?.state || "Maharashtra");
+  const [editDistrict, setEditDistrict] = useState(currentUser?.district || "Nagpur");
+  const [editVillage, setEditVillage] = useState(currentUser?.village || "Kalmeshwar");
 
   const [notifications, setNotifications] = useState({
     priceAlerts: true,
@@ -94,7 +121,7 @@ export default function SettingsPage() {
 
     try {
       const payload = {
-        uid: user.uid,
+        uid: user?.uid || currentUser?.uid || "user-001",
         name: editName,
         phone: editPhone,
         acres: Number(editAcres) || 1,

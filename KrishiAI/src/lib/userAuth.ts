@@ -6,7 +6,8 @@ export interface DemoUser {
   uid: string;
   name: string;
   phone: string;
-  password: string; // demo only
+  password?: string;
+  passwordHash?: string;
   state: string;
   district: string;
   village: string;
@@ -170,34 +171,35 @@ export const DEMO_USERS: DemoUser[] = [
 const USER_KEY = "khetisaathi-current-user";
 const LEGACY_USER_KEY = "krishiai-current-user";
 
-export function loginUser(phone: string, password: string): DemoUser | null {
-  const user = DEMO_USERS.find(
-    (u) => (u.phone === phone || u.phone.replace(/\s/g, "") === phone.replace(/\s/g, "")) && u.password === password
-  );
-  if (user) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-    }
-    return user;
+export function setAuthenticatedUser(user: DemoUser) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
-  return null;
 }
 
-export function getCurrentUser(): DemoUser {
-  if (typeof window === "undefined") return DEMO_USERS[0];
+export function getCurrentUser(): DemoUser | null {
+  if (typeof window === "undefined") return null;
   const raw = localStorage.getItem(USER_KEY) || localStorage.getItem(LEGACY_USER_KEY);
-  if (!raw) return DEMO_USERS[0];
-  try { return JSON.parse(raw) || DEMO_USERS[0]; } catch { return DEMO_USERS[0]; }
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && parsed.uid ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 export function logoutUser() {
   if (typeof window !== "undefined") {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(LEGACY_USER_KEY);
+    document.cookie = "khetisaathi_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "khetisaathi_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   }
 }
 
 export function isLoggedIn(): boolean {
-  if (typeof window === "undefined") return true;
-  return localStorage.getItem(USER_KEY) !== null;
+  return getCurrentUser() !== null;
 }
+

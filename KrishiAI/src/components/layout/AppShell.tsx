@@ -5,7 +5,7 @@ import Link from "next/link";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
-import { getCurrentUser } from "@/lib/userAuth";
+import { getCurrentUser, logoutUser } from "@/lib/userAuth";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -16,13 +16,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem("khetisaathi-theme") ?? localStorage.getItem("krishiai-theme") ?? "light";
     document.documentElement.setAttribute("data-theme", saved);
 
-    // Guard: redirect to auth if not logged in
+    // Strict Guard: check local session first
     const user = getCurrentUser();
-    if (!user) {
+    if (!user || !user.uid) {
       router.replace("/auth");
       return;
     }
-    setMounted(true);
+
+    // Verify user exists in the database
+    fetch(`/api/auth/me?uid=${encodeURIComponent(user.uid)}`)
+      .then((res) => {
+        if (!res.ok) {
+          // User is invalid in database -> immediately revoke access
+          logoutUser();
+          router.replace("/auth");
+        } else {
+          setMounted(true);
+        }
+      })
+      .catch(() => {
+        // If network issue, allow mount if user has valid cached credentials
+        setMounted(true);
+      });
   }, [router, pathname]);
 
   if (!mounted) {

@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { DEMO_USERS, loginUser, getCurrentUser, type DemoUser } from "@/lib/userAuth";
+import { DEMO_USERS, setAuthenticatedUser, type DemoUser } from "@/lib/userAuth";
 import { useAppStore } from "@/lib/store";
 import { getTranslation, Language } from "@/lib/translations";
 
@@ -53,106 +53,121 @@ export default function AuthPage() {
     }
   };
 
+  // STRICT DATABASE LOGIN: Must verify encrypted password against database
   const handleLogin = async () => {
     setError("");
     if (!phone.trim() || !password.trim()) {
-      setError(language === "mr" ? "कृपया फोन नंबर आणि पासवर्ड टाका." : language === "hi" ? "कृपया फोन नंबर और पासवर्ड दर्ज करें।" : "Please enter your phone number and password.");
-      return;
-    }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    const user = loginUser(phone.trim(), password.trim());
-    if (user) {
-      router.push("/dashboard");
-    } else {
-      setError(t.auth.invalidCreds);
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async () => {
-    setError("");
-    if (!regName.trim() || !regPhone.trim() || !regPassword.trim()) {
-      setError(language === "mr" ? "कृपया नाव, फोन नंबर आणि पासवर्ड प्रविष्ट करा." : language === "hi" ? "कृपया नाम, फोन नंबर और पासवर्ड दर्ज करें।" : "Please enter your name, phone number, and password.");
+      setError(
+        language === "mr"
+          ? "कृपया फोन नंबर आणि पासवर्ड टाका."
+          : language === "hi"
+          ? "कृपया फोन नंबर और पासवर्ड दर्ज करें।"
+          : "Please enter your phone number and password."
+      );
       return;
     }
 
     setLoading(true);
     try {
-      const newUid = "user-" + Date.now();
-      const newUser: Partial<DemoUser> = {
-        uid: newUid,
-        name: regName.trim(),
-        phone: regPhone.trim(),
-        password: regPassword.trim(),
-        state: regState.trim(),
-        district: regDistrict.trim(),
-        village: regVillage.trim(),
-        acres: Number(regAcres) || 5,
-        crops: regCrops,
-        avatar: regName.slice(0, 2).toUpperCase(),
-        aadhaar_last4: String(Math.floor(1000 + Math.random() * 9000)),
-        bankAccount: "SBI Agri Branch",
-        healthScore: 78,
-      };
-
-      // Save to Firebase via API
-      const res = await fetch("/api/user/profile", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify({
+          phone: phone.trim(),
+          password: password.trim(),
+        }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const savedUser = data.profile || newUser;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("khetisaathi-current-user", JSON.stringify(savedUser));
-        }
-        setRegSuccess(true);
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1200);
-      } else {
-        throw new Error("Registration save failed");
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.user) {
+        setError(data.error || t.auth.invalidCreds);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.warn("Register error, saving locally:", err);
-      // Fallback local save
-      const fallbackUser: DemoUser = {
-        uid: "user-" + Date.now(),
-        name: regName.trim(),
-        phone: regPhone.trim(),
-        password: regPassword.trim(),
-        state: regState.trim(),
-        district: regDistrict.trim(),
-        village: regVillage.trim(),
-        acres: Number(regAcres) || 5,
-        crops: regCrops,
-        avatar: regName.slice(0, 2).toUpperCase(),
-        aadhaar_last4: "9821",
-        bankAccount: "SBI Agri Branch",
-        healthScore: 78,
-        kpi: {
-          netProfitForecast: Math.round(Number(regAcres) * 42000),
-          netProfitChange: 14.5,
-          landCoverage: Number(regAcres),
-          landUtilization: 92,
-          activeLoans: 1,
-          totalLoanAmount: 200000,
-          schemeBenefits: 12000,
-          schemesApplied: 3,
-        },
-        recentActivities: [],
-        loans: [],
-        expenses: [],
-      };
-      if (typeof window !== "undefined") {
-        localStorage.setItem("khetisaathi-current-user", JSON.stringify(fallbackUser));
+
+      // Valid credentials verified against database!
+      setAuthenticatedUser(data.user);
+      const destination = searchParams.get("from") || "/dashboard";
+      router.push(destination);
+    } catch (err: unknown) {
+      console.error("Login verification error:", err);
+      setError(
+        language === "mr"
+          ? "डेटाबेस सर्व्हरशी संपर्क साधता आला नाही. कृपया पुन्हा प्रयत्न करा."
+          : language === "hi"
+          ? "डेटाबेस सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।"
+          : "Could not connect to database server. Please try again."
+      );
+      setLoading(false);
+    }
+  };
+
+  // STRICT DATABASE REGISTRATION: Password encrypted with bcrypt & full profile stored in DB
+  const handleRegister = async () => {
+    setError("");
+    if (!regName.trim() || !regPhone.trim() || !regPassword.trim()) {
+      setError(
+        language === "mr"
+          ? "कृपया नाव, फोन नंबर आणि पासवर्ड प्रविष्ट करा."
+          : language === "hi"
+          ? "कृपया नाम, फोन नंबर और पासवर्ड दर्ज करें।"
+          : "Please enter your name, phone number, and password."
+      );
+      return;
+    }
+
+    if (regPassword.trim().length < 6) {
+      setError(
+        language === "mr"
+          ? "पासवर्ड किमान ६ अक्षरांचा असावा."
+          : language === "hi"
+          ? "पासवर्ड कम से कम ६ अक्षरों का होना चाहिए।"
+          : "Password must be at least 6 characters long."
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: regName.trim(),
+          phone: regPhone.trim(),
+          password: regPassword.trim(),
+          state: regState.trim(),
+          district: regDistrict.trim(),
+          village: regVillage.trim(),
+          acres: Number(regAcres) || 5,
+          crops: regCrops,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.user) {
+        setError(data.error || "Registration failed");
+        setLoading(false);
+        return;
       }
+
+      // Encrypted user successfully saved to database!
+      setAuthenticatedUser(data.user);
       setRegSuccess(true);
-      setTimeout(() => router.push("/dashboard"), 1200);
-    } finally {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+    } catch (err: unknown) {
+      console.error("Registration error:", err);
+      setError(
+        language === "mr"
+          ? "नोंदणी दरम्यान त्रुटी आली. कृपया इंटरनेट तपासा."
+          : language === "hi"
+          ? "पंजीकरण के दौरान त्रुटि हुई। कृपया इंटरनेट जांचें।"
+          : "Network error during registration. Please try again."
+      );
       setLoading(false);
     }
   };
@@ -160,9 +175,34 @@ export default function AuthPage() {
   const quickLogin = async (u: (typeof DEMO_USERS)[0]) => {
     setLoading(true);
     setError("");
-    await new Promise((r) => setTimeout(r, 200));
-    loginUser(u.phone, u.password);
-    router.push("/dashboard");
+    setPhone(u.phone);
+    setPassword(u.password || "");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: u.phone,
+          password: u.password || "",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.user) {
+        setError(data.error || t.auth.invalidCreds);
+        setLoading(false);
+        return;
+      }
+
+      setAuthenticatedUser(data.user);
+      const destination = searchParams.get("from") || "/dashboard";
+      router.push(destination);
+    } catch (err: unknown) {
+      console.error("Quick login error:", err);
+      setError("Database login error. Please try again.");
+      setLoading(false);
+    }
   };
 
   const languages: { code: Language; label: string; native: string }[] = [
