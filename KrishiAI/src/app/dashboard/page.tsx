@@ -86,6 +86,61 @@ export default function Dashboard() {
           />
         </motion.div>
 
+        {/* ── USER'S LIVE FARM PROFILE & CROPS BANNER ── */}
+        <motion.div variants={up} className="gc p-5 rounded-3xl border border-[var(--border)] shadow-sm bg-[var(--bg-card)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-500 text-white font-black text-xl flex items-center justify-center shadow-md shadow-emerald-600/30 flex-shrink-0">
+                {user?.avatar || "🌱"}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-lg font-black text-[var(--text-primary)]">
+                    {user?.name || "Farmer Partner"}&apos;s Farm
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-500/20">
+                    🌾 {user?.acres || 5} {t.common.acres}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    📍 {user?.village || "Farm"}, {user?.district || "District"}, {user?.state || "State"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className="text-xs font-bold text-[var(--text-muted)]">
+                    {language === "mr" ? "नोंदणीकृत पिके:" : language === "hi" ? "पंजीकृत फसलें:" : "Cultivated Crops:"}
+                  </span>
+                  {(user?.crops && user.crops.length > 0 ? user.crops : ["Cotton", "Soybean"]).map((c) => (
+                    <Link
+                      key={c}
+                      href={`/crops`}
+                      className="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-100 transition"
+                    >
+                      🌱 {c}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 self-start md:self-auto">
+              <Link
+                href="/crops"
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition"
+              >
+                <Sprout className="w-3.5 h-3.5" />
+                <span>{language === "mr" ? "पीक व्यवस्थापन" : language === "hi" ? "फसल प्रबंधन" : "My Crops"}</span>
+              </Link>
+              <Link
+                href="/loans"
+                className="px-4 py-2.5 rounded-xl bg-[var(--bg-muted)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-primary)] font-bold text-xs border border-[var(--border)] flex items-center gap-1.5 transition"
+              >
+                <Landmark className="w-3.5 h-3.5 text-blue-600" />
+                <span>{language === "mr" ? "कर्ज मंजुरी" : language === "hi" ? "ऋण सीमा" : "Loan Offers"}</span>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+
         {/* ── APNA KISAN AI — VOICE & LEAF SCANNER STUDIO BANNER ── */}
         <motion.div variants={up} className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-r from-emerald-900/90 via-green-800/85 to-emerald-950/90 text-white shadow-xl border border-emerald-500/35 backdrop-blur-xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

@@ -1,4 +1,4 @@
-import { adminDb, adminRtdb } from "./firebaseAdmin";
+import { adminDb, adminRtdb, RTDB_BASE_URL } from "./firebaseAdmin";
 import { DEMO_USERS, type DemoUser } from "./userAuth";
 
 export interface UserExpense {
@@ -101,10 +101,29 @@ export function calculateDynamicKPI(acres: number, crops: string[], baseUser?: D
 }
 
 // -------------------------------------------------------------
-// USER PROFILE METHODS (Firestore + Realtime DB + Fallback)
+// USER PROFILE METHODS (Firestore + Realtime DB + REST Fallback)
 // -------------------------------------------------------------
 export async function getUserProfile(uid: string): Promise<DemoUser> {
-  // 1. Check Firestore
+  // 1. In-memory cache
+  if (inMemoryUserCache[uid]) {
+    return inMemoryUserCache[uid];
+  }
+
+  // 2. Realtime Database REST API (Fastest and non-hanging on Vercel)
+  try {
+    const res = await fetch(`${RTDB_BASE_URL}/users/${uid}/profile.json`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.uid) {
+        inMemoryUserCache[uid] = data;
+        return data;
+      }
+    }
+  } catch (err: unknown) {
+    console.warn(`[RTDB REST] Read user profile failed for ${uid}:`, (err as Error)?.message);
+  }
+
+  // 3. Check Firestore
   if (adminDb) {
     try {
       const doc = await adminDb.collection("users").doc(uid).get();
@@ -118,7 +137,7 @@ export async function getUserProfile(uid: string): Promise<DemoUser> {
     }
   }
 
-  // 2. Check Realtime Database
+  // 4. Check Realtime Database SDK
   if (adminRtdb) {
     try {
       const snapshot = await adminRtdb.ref(`users/${uid}/profile`).once("value");
@@ -132,10 +151,7 @@ export async function getUserProfile(uid: string): Promise<DemoUser> {
     }
   }
 
-  // 3. Fallback to cache or Demo User
-  if (inMemoryUserCache[uid]) {
-    return inMemoryUserCache[uid];
-  }
+  // 5. Fallback to default Demo User
   const defaultUser = DEMO_USERS.find((u) => u.uid === uid) || DEMO_USERS[0];
   inMemoryUserCache[uid] = { ...defaultUser, uid };
   return inMemoryUserCache[uid];
@@ -163,7 +179,18 @@ export async function saveUserProfile(uid: string, updates: Partial<DemoUser>): 
 
   inMemoryUserCache[uid] = updated;
 
-  // 1. Write to Firestore
+  // 1. Direct REST PUT to Realtime Database
+  try {
+    fetch(`${RTDB_BASE_URL}/users/${uid}/profile.json`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    }).catch(() => {});
+  } catch (err: unknown) {
+    console.warn(`[RTDB REST] Save failed for ${uid}:`, (err as Error)?.message);
+  }
+
+  // 2. Write to Firestore
   if (adminDb) {
     try {
       await adminDb.collection("users").doc(uid).set(updated, { merge: true });

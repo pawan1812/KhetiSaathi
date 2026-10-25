@@ -23,6 +23,8 @@ import {
   ChevronRight
 } from "lucide-react";
 
+import { getCurrentUser, type DemoUser } from "@/lib/userAuth";
+
 interface CropRecord {
   id: string;
   cropId: string;
@@ -42,6 +44,7 @@ export default function CropManagementPage() {
   const { language } = useAppStore();
   const t = getTranslation(language);
 
+  const [user, setUser] = useState<DemoUser | null>(null);
   const [crops, setCrops] = useState<CropRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -61,13 +64,17 @@ export default function CropManagementPage() {
   });
 
   useEffect(() => {
-    fetchCrops();
+    const cur = getCurrentUser();
+    setUser(cur);
+    const uid = cur?.uid || "user-001";
+    fetchCrops(uid);
   }, []);
 
-  const fetchCrops = async () => {
+  const fetchCrops = async (targetUid?: string) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/crops?uid=user-003");
+      const uid = targetUid || user?.uid || "user-001";
+      const res = await fetch(`/api/crops?uid=${uid}`);
       const data = await res.json();
       if (data.success && data.crops) {
         setCrops(data.crops);
@@ -93,12 +100,13 @@ export default function CropManagementPage() {
   const handleSaveCrop = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const activeUid = user?.uid || "user-001";
       const res = await fetch("/api/crops", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          uid: "user-003"
+          uid: activeUid
         })
       });
       const data = await res.json();
@@ -125,7 +133,8 @@ export default function CropManagementPage() {
   const handleDeleteCrop = async (id: string) => {
     if (!confirm(language === "mr" ? "तुम्हाला खात्री आहे की हे पीक हटवायचे आहे?" : "Are you sure you want to delete this crop?")) return;
     try {
-      const res = await fetch(`/api/crops?id=${id}&uid=user-003`, { method: "DELETE" });
+      const activeUid = user?.uid || "user-001";
+      const res = await fetch(`/api/crops?id=${id}&uid=${activeUid}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success && data.crops) {
         setCrops(data.crops);

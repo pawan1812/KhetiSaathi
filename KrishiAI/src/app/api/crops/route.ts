@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CROP_MASTER_LIST } from "@/lib/mahavistaarData";
+import { RTDB_BASE_URL } from "@/lib/firebaseAdmin";
+import { getUserProfile } from "@/lib/firebaseService";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export interface UserCropRecord {
   id: string;
@@ -16,8 +21,8 @@ export interface UserCropRecord {
   createdAt: string;
 }
 
-// In-memory cache backed by demo defaults
-let userCropsDb: Record<string, UserCropRecord[]> = {
+// In-memory cache for fast response times
+const userCropsDb: Record<string, UserCropRecord[]> = {
   "user-003": [
     {
       id: "crop-001",
@@ -62,19 +67,150 @@ let userCropsDb: Record<string, UserCropRecord[]> = {
       status: "active",
       notes: "CRI irrigation applied at 21 DAS",
       createdAt: "2025-12-05T08:00:00Z"
+    },
+    {
+      id: "crop-004",
+      cropId: "rice",
+      cropName: "Rice (तांदूळ / भात)",
+      variety: "PR-126",
+      sowingDate: "2025-07-10",
+      plotName: "Lowland Field Plot 2",
+      gatNumber: "32/5",
+      area: 4,
+      areaUnit: "acre",
+      status: "harvested",
+      notes: "Direct Seeded Rice (DSR) trial",
+      createdAt: "2025-07-10T08:00:00Z"
+    }
+  ],
+  "user-002": [
+    {
+      id: "crop-005",
+      cropId: "sugarcane",
+      cropName: "Sugarcane (ऊस)",
+      variety: "Co-0238",
+      sowingDate: "2025-10-15",
+      plotName: "Meerut Main Canal Plot",
+      gatNumber: "56/1",
+      area: 4,
+      areaUnit: "acre",
+      status: "active",
+      notes: "Trench planting with drip fertigation",
+      createdAt: "2025-10-15T08:00:00Z"
+    },
+    {
+      id: "crop-006",
+      cropId: "wheat",
+      cropName: "Wheat (गहू)",
+      variety: "PBW-343",
+      sowingDate: "2025-12-01",
+      plotName: "Tube-well Plot 2",
+      gatNumber: "56/2",
+      area: 3,
+      areaUnit: "acre",
+      status: "active",
+      notes: "Zero tillage rabi wheat",
+      createdAt: "2025-12-01T08:00:00Z"
     }
   ]
 };
 
+// Helper to generate initial plot records from user's registered crops and acreage
+function generateCropsFromUserProfile(uid: string, crops: string[], totalAcres: number): UserCropRecord[] {
+  if (!crops || crops.length === 0) {
+    crops = ["Cotton", "Soybean"];
+  }
+  const acres = Math.max(1, totalAcres || 5);
+  const perCropAcres = Math.max(1, Math.round((acres / crops.length) * 10) / 10);
+
+  return crops.map((cropName, idx) => {
+    const cropLower = cropName.toLowerCase().replace(/[^a-z]/g, "");
+    const master = CROP_MASTER_LIST.find((m) =>
+      m.id.toLowerCase().includes(cropLower) ||
+      cropLower.includes(m.id.toLowerCase()) ||
+      m.name.en.toLowerCase().includes(cropLower)
+    ) || CROP_MASTER_LIST[idx % CROP_MASTER_LIST.length];
+
+    // Calculate realistic sowing date between 30 and 70 days ago
+    const daysAgo = 35 + (idx * 20);
+    const sowDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    const plotLetters = ["A", "B", "C", "D", "E"];
+    const plotLetter = plotLetters[idx % plotLetters.length];
+
+    return {
+      id: `crop-${uid}-${idx + 1}`,
+      cropId: master.id,
+      cropName: `${master.name.en} (${master.name.mr || master.name.hi || ""})`,
+      variety: master.varieties[0]?.name || "Certified Hybrid",
+      sowingDate: sowDate,
+      plotName: `Farm Plot ${plotLetter}`,
+      gatNumber: `${100 + (idx * 12)}/${idx + 1}`,
+      area: idx === crops.length - 1 ? Math.max(1, Math.round((acres - (perCropAcres * (crops.length - 1))) * 10) / 10) : perCropAcres,
+      areaUnit: "acre",
+      status: "active",
+      notes: `Registered with farm acreage. Soil health monitored.`,
+      createdAt: new Date().toISOString()
+    };
+  });
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const uid = searchParams.get("uid") || "user-003";
+    const uidFromQuery = searchParams.get("uid");
+    const uidFromCookie = req.cookies.get("khetisaathi_uid")?.value;
+    const uid = uidFromQuery || uidFromCookie || "user-001";
 
-    const crops = userCropsDb[uid] || userCropsDb["user-003"] || [];
+    // 1. In-memory check
+    if (userCropsDb[uid] && userCropsDb[uid].length > 0) {
+      return NextResponse.json({
+        success: true,
+        crops: userCropsDb[uid],
+        masterList: CROP_MASTER_LIST
+      });
+    }
+
+    // 2. Realtime Database REST API check
+    try {
+      const res = await fetch(`${RTDB_BASE_URL}/users/${uid}/crops.json`, {
+        signal: AbortSignal.timeout(2500)
+      });
+      if (res.ok) {
+        const remoteCrops = await res.json();
+        if (remoteCrops && Array.isArray(remoteCrops) && remoteCrops.length > 0) {
+          userCropsDb[uid] = remoteCrops;
+          return NextResponse.json({
+            success: true,
+            crops: remoteCrops,
+            masterList: CROP_MASTER_LIST
+          });
+        }
+      }
+    } catch {
+      // Continue to profile lookup
+    }
+
+    // 3. Generate tailored crops from user profile
+    const profile = await getUserProfile(uid);
+    const generated = generateCropsFromUserProfile(
+      uid,
+      profile?.crops || ["Cotton", "Soybean"],
+      profile?.acres || 7
+    );
+
+    userCropsDb[uid] = generated;
+
+    // Sync to Realtime DB in background
+    fetch(`${RTDB_BASE_URL}/users/${uid}/crops.json`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(generated)
+    }).catch(() => {});
+
     return NextResponse.json({
       success: true,
-      crops,
+      crops: generated,
       masterList: CROP_MASTER_LIST
     });
   } catch (error) {
@@ -85,8 +221,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const uid = body.uid || "user-003";
+    const body = await req.json().catch(() => ({}));
+    const uidFromCookie = req.cookies.get("khetisaathi_uid")?.value;
+    const uid = body.uid || uidFromCookie || "user-001";
 
     if (!body.cropName || !body.sowingDate || !body.area) {
       return NextResponse.json(
@@ -97,13 +234,13 @@ export async function POST(req: NextRequest) {
 
     const newRecord: UserCropRecord = {
       id: `crop-${Date.now()}`,
-      cropId: body.cropId || body.cropName.toLowerCase(),
+      cropId: body.cropId || body.cropName.toLowerCase().replace(/[^a-z]/g, ""),
       cropName: body.cropName,
       variety: body.variety || "Standard Hybrid",
       sowingDate: body.sowingDate,
       plotName: body.plotName || "Main Plot",
       gatNumber: body.gatNumber || "Gat-1",
-      area: Number(body.area),
+      area: Number(body.area) || 1,
       areaUnit: body.areaUnit || "acre",
       status: "active",
       notes: body.notes || "",
@@ -114,6 +251,13 @@ export async function POST(req: NextRequest) {
       userCropsDb[uid] = [];
     }
     userCropsDb[uid].unshift(newRecord);
+
+    // Sync to Firebase Realtime Database
+    fetch(`${RTDB_BASE_URL}/users/${uid}/crops.json`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userCropsDb[uid])
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,
@@ -131,7 +275,8 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-    const uid = searchParams.get("uid") || "user-003";
+    const uidFromCookie = req.cookies.get("khetisaathi_uid")?.value;
+    const uid = searchParams.get("uid") || uidFromCookie || "user-001";
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Missing crop id" }, { status: 400 });
@@ -140,6 +285,13 @@ export async function DELETE(req: NextRequest) {
     if (userCropsDb[uid]) {
       userCropsDb[uid] = userCropsDb[uid].filter((c) => c.id !== id);
     }
+
+    // Sync to Firebase Realtime Database
+    fetch(`${RTDB_BASE_URL}/users/${uid}/crops.json`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userCropsDb[uid] || [])
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

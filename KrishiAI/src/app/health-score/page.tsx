@@ -55,7 +55,8 @@ export default function HealthScorePage() {
 
   const user = getCurrentUser();
   const profile = user || farmerProfile;
-  const overall = user?.healthScore || mockHealthScore.overall;
+  const rawScore = user?.healthScore || 74;
+  const overall = rawScore <= 100 ? Math.round((rawScore / 100) * 850) : rawScore;
   const { max, breakdown, tips, history } = mockHealthScore;
   const { grade, color, bg } = getScoreGrade(overall, language);
   const scorePct = (overall / max) * 100;

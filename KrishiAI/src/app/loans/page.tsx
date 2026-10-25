@@ -1,9 +1,9 @@
 "use client";
 import AppShell from "@/components/layout/AppShell";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { documentChecklist, farmerProfile } from "@/lib/mockData";
-import { getCurrentUser } from "@/lib/userAuth";
+import { getCurrentUser, type DemoUser } from "@/lib/userAuth";
 import { formatCurrency } from "@/lib/utils";
 import { Landmark, CheckCircle2, Circle, ExternalLink, Calculator, ChevronDown, ChevronUp, Shield, Clock, ArrowRight, FileText } from "lucide-react";
 import { useAppStore } from "@/lib/store";
@@ -17,13 +17,92 @@ export default function LoansPage() {
   const [loanAmount, setLoanAmount] = useState(200000);
   const [tenure, setTenure] = useState(12);
   const [interestRate, setInterestRate] = useState(4.0);
+  const [user, setUser] = useState<DemoUser | null>(() => getCurrentUser());
 
   const { language } = useAppStore();
   const t = getTranslation(language);
 
-  const user = getCurrentUser();
+  useEffect(() => {
+    const cur = getCurrentUser();
+    if (cur) {
+      setUser(cur);
+      fetch(`/api/user/profile?uid=${cur.uid}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && data.profile) {
+            setUser(data.profile);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("khetisaathi-current-user", JSON.stringify(data.profile));
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
   const profile = user || farmerProfile;
-  const userLoans = user?.loans || [];
+  const acres = profile?.acres || 5;
+  const crops = profile?.crops && profile.crops.length > 0 ? profile.crops : ["Wheat", "Rice"];
+  const state = profile?.state || "Maharashtra";
+
+  // Tailored dynamic loan options according to user database details
+  const dynamicTailoredLoans = [
+    {
+      id: `l-kcc-${profile.uid || "main"}`,
+      type: "Kisan Credit Card (KCC) Crop Loan",
+      bank: state.toLowerCase().includes("punjab")
+        ? "State Bank of India, Agri Hub"
+        : state.toLowerCase().includes("pradesh")
+        ? "Bank of Baroda Agri Branch"
+        : "Maharashtra Gramin Bank",
+      limit: Math.max(150000, Math.round(acres * 35000)),
+      emi: Math.max(2200, Math.round(acres * 450)),
+      effectiveRate: 4.0,
+      status: "Pre-Approved",
+      tenure: "5 Years",
+      subsidyRate: 3.0,
+      features: [
+        "3% Govt Interest Subvention under MoA&FW",
+        "Zero collateral required up to ₹1.60 Lakh",
+        `Tailored credit limit for ${acres} acres of ${crops.join(", ")}`,
+        "Direct DBT disbursement linked to Aadhaar"
+      ],
+    },
+    {
+      id: `l-crop-${profile.uid || "crop"}`,
+      type: `${crops[0] || "Cash Crop"} Seasonal Production Credit`,
+      bank: "NABARD Co-operative Agri Society",
+      limit: Math.max(100000, Math.round(acres * 22000)),
+      emi: Math.max(1600, Math.round(acres * 280)),
+      effectiveRate: 3.5,
+      status: "Active",
+      tenure: "12 Months",
+      subsidyRate: 2.5,
+      features: [
+        "Post-harvest deferred repayment facility",
+        "Subsidized crop insurance under PMFBY included",
+        "Fertilizer and seed voucher credit tie-up"
+      ],
+    },
+    {
+      id: `l-infra-${profile.uid || "infra"}`,
+      type: "PM Agriculture Infrastructure & Drip Irrigation Loan",
+      bank: "Agri Development Co-op Bank",
+      limit: Math.max(200000, Math.round(acres * 30000)),
+      emi: Math.max(2500, Math.round(acres * 380)),
+      effectiveRate: 3.0,
+      status: "Eligible",
+      tenure: "7 Years",
+      subsidyRate: 5.0,
+      features: [
+        "Up to 75% direct capital subsidy from PM-KUSUM",
+        "Reduces water & electricity consumption by 40%",
+        "3-year moratorium period on principal payment"
+      ],
+    }
+  ];
+
+  const userLoans = (user?.loans && user.loans.length > 0) ? user.loans : dynamicTailoredLoans;
 
   const emi = Math.round(
     (loanAmount * (interestRate / 1200) * Math.pow(1 + interestRate / 1200, tenure)) /

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerFarmer } from "@/lib/serverAuth";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
