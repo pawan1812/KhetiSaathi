@@ -74,7 +74,7 @@ export default function AuthPage() {
     const cleanUsername = rawId.toLowerCase().replace(/[^a-z0-9_]/g, "");
 
     try {
-      // 1. Attempt API login with a strict 3.5s timeout so Vercel never hangs
+      // 1. Attempt API login with a generous 10s timeout
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,7 +84,7 @@ export default function AuthPage() {
           phone: rawId,
           password: password.trim(),
         }),
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(10000),
       });
 
       let data: any = null;
@@ -93,7 +93,7 @@ export default function AuthPage() {
       if (res.ok && data?.success && data?.user) {
         setAuthenticatedUser(data.user);
         const destination = searchParams.get("from") || "/dashboard";
-        router.push(destination);
+        window.location.href = destination;
         return;
       }
 
@@ -169,11 +169,9 @@ export default function AuthPage() {
               }
 
               if (isMatch || !storedHash) {
-                document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: profile.uid, phone: profile.phone, time: Date.now() }))}; path=/; max-age=2592000`;
-                document.cookie = `khetisaathi_uid=${profile.uid}; path=/; max-age=2592000`;
                 setAuthenticatedUser(profile);
                 const destination = searchParams.get("from") || "/dashboard";
-                router.push(destination);
+                window.location.href = destination;
                 return;
               } else {
                 setError(
@@ -201,11 +199,9 @@ export default function AuthPage() {
       );
 
       if (demoUser && demoUser.password === password.trim()) {
-        document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: demoUser.uid, phone: demoUser.phone, time: Date.now() }))}; path=/; max-age=2592000`;
-        document.cookie = `khetisaathi_uid=${demoUser.uid}; path=/; max-age=2592000`;
         setAuthenticatedUser(demoUser);
         const destination = searchParams.get("from") || "/dashboard";
-        router.push(destination);
+        window.location.href = destination;
         return;
       }
 
@@ -269,7 +265,7 @@ export default function AuthPage() {
           acres: Number(regAcres) || 5,
           crops: regCrops,
         }),
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(10000),
       });
 
       let data: any = null;
@@ -279,8 +275,8 @@ export default function AuthPage() {
         setAuthenticatedUser(data.user);
         setRegSuccess(true);
         setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
+          window.location.href = "/dashboard";
+        }, 800);
         return;
       }
 
@@ -444,8 +440,8 @@ export default function AuthPage() {
         setAuthenticatedUser(newUser);
         setRegSuccess(true);
         setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
+          window.location.href = "/dashboard";
+        }, 800);
         return;
       } catch (directErr) {
         console.error("Direct registration fallback error:", directErr);
@@ -487,7 +483,7 @@ export default function AuthPage() {
           phone: u.phone,
           password: u.password || "",
         }),
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(8000),
       });
 
       let data: any = null;
@@ -496,20 +492,16 @@ export default function AuthPage() {
       if (res.ok && data?.success && data?.user) {
         setAuthenticatedUser(data.user);
         const destination = searchParams.get("from") || "/dashboard";
-        router.push(destination);
+        window.location.href = destination;
         return;
       }
 
       // If serverless returned error, use client credential sync
       setAuthenticatedUser(u);
-      document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: u.uid, phone: u.phone, time: Date.now() }))}; path=/; max-age=2592000`;
-      document.cookie = `khetisaathi_uid=${u.uid}; path=/; max-age=2592000`;
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch {
       setAuthenticatedUser(u);
-      document.cookie = `khetisaathi_session=${btoa(JSON.stringify({ uid: u.uid, phone: u.phone, time: Date.now() }))}; path=/; max-age=2592000`;
-      document.cookie = `khetisaathi_uid=${u.uid}; path=/; max-age=2592000`;
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     }
   };
 

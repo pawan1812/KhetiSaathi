@@ -178,6 +178,20 @@ const LEGACY_USER_KEY = "krishiai-current-user";
 export function setAuthenticatedUser(user: DemoUser) {
   if (typeof window !== "undefined") {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(LEGACY_USER_KEY, JSON.stringify(user));
+    try {
+      const sessionData = {
+        uid: user.uid,
+        username: user.username || "",
+        phone: user.phone || "",
+        time: Date.now(),
+      };
+      const token = btoa(JSON.stringify(sessionData));
+      document.cookie = `khetisaathi_session=${token}; path=/; max-age=2592000; SameSite=Lax`;
+      document.cookie = `khetisaathi_uid=${encodeURIComponent(user.uid)}; path=/; max-age=2592000; SameSite=Lax`;
+    } catch (e) {
+      console.warn("Could not set auth cookies:", e);
+    }
   }
 }
 
@@ -197,8 +211,8 @@ export function logoutUser() {
   if (typeof window !== "undefined") {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(LEGACY_USER_KEY);
-    document.cookie = "khetisaathi_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "khetisaathi_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "khetisaathi_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+    document.cookie = "khetisaathi_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   }
 }

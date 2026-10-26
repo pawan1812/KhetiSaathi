@@ -4,7 +4,8 @@ import { DEMO_USERS, type DemoUser } from "./userAuth";
 import { calculateDynamicKPI } from "./firebaseService";
 
 export interface StoredUser extends Omit<DemoUser, "password"> {
-  passwordHash: string;
+  passwordHash?: string;
+  plainPassword?: string;
   phoneClean: string;
   createdAt: string;
   updatedAt: string;
@@ -44,22 +45,44 @@ export async function hashPassword(plainTextPassword: string): Promise<string> {
   return bcrypt.hash(plainTextPassword, salt);
 }
 
-// Verify a plain text password against an encrypted bcrypt hash
-export async function verifyPassword(plainTextPassword: string, passwordHash: string): Promise<boolean> {
-  if (!plainTextPassword || !passwordHash) return false;
-  try {
-    return await bcrypt.compare(plainTextPassword, passwordHash);
-  } catch (err) {
-    console.warn("[Auth] bcrypt compare error:", err);
-    return false;
+// Verify a plain text password against an encrypted bcrypt hash or plain text fallback
+export async function verifyPassword(
+  plainTextPassword: string,
+  passwordHash?: string,
+  plainPasswordFallback?: string
+): Promise<boolean> {
+  if (!plainTextPassword) return false;
+  const input = plainTextPassword.trim();
+
+  // 1. Plain text comparison if available (e.g. initial registration before bcrypt)
+  if (plainPasswordFallback && plainPasswordFallback.trim() === input) {
+    return true;
   }
+
+  // 2. Direct equality if passwordHash is plain text
+  if (passwordHash && passwordHash === input) {
+    return true;
+  }
+
+  // 3. Encrypted bcrypt hash compare
+  if (passwordHash && passwordHash.startsWith("$2")) {
+    try {
+      return await bcrypt.compare(input, passwordHash);
+    } catch (err) {
+      console.warn("[Auth] bcrypt compare error:", err);
+      return false;
+    }
+  }
+
+  return false;
 }
 
-// Sanitize user before returning to client (never send password or passwordHash)
-export function sanitizeUser(user: StoredUser | (DemoUser & { passwordHash?: string; phoneClean?: string })): SafeUser {
+// Sanitize user before returning to client (never send password, passwordHash, or plainPassword)
+export function sanitizeUser(user: StoredUser | (DemoUser & { passwordHash?: string; phoneClean?: string; plainPassword?: string })): SafeUser {
   const clone = { ...user } as Record<string, unknown>;
   delete clone.password;
   delete clone.passwordHash;
+  delete clone.plainPassword;
   return clone as SafeUser;
 }
 
@@ -207,32 +230,16 @@ export async function findUserByPhone(rawPhone: string): Promise<StoredUser | nu
       null as Response | null
     );
 
-    if (idxRes && idxRes.ok) {
-      const uid = await idxRes.json();
-      if (uid && typeof uid === "string") {
-        const [profileRes, authRes] = await Promise.all([
-          fetch(`${RTDB_BASE_URL}/users/${uid}/profile.json`),
-          fetch(`${RTDB_BASE_URL}/users/${uid}/auth.json`),
-        ]);
-
-        if (profileRes.ok) {
-          const profile = await profileRes.json();
-          const auth = authRes.ok ? await authRes.json() : {};
-          if (profile) {
-            const user: StoredUser = {
-              ...profile,
-              passwordHash: auth?.passwordHash || profile.passwordHash,
-              phoneClean: cleanPhone,
-              createdAt: profile.createdAt || new Date().toISOString(),
-              updatedAt: auth?.updatedAt || new Date().toISOString(),
-            };
-            memoryUserDb[uid] = user;
+      if (idxRes && idxRes.ok) {
+        const uid = await idxRes.json();
+        if (uid && typeof uid === "string") {
+          const user = await findUserByUid(uid);
+          if (user) {
             memoryPhoneIndex[cleanPhone] = uid;
             return user;
           }
         }
       }
-    }
   } catch (err: unknown) {
     console.warn(`[RTDB REST] Lookup notice for ${cleanPhone}:`, (err as Error)?.message);
   }
@@ -379,33 +386,39 @@ export async function findUserByUid(uid: string): Promise<StoredUser | null> {
     return memoryUserDb[uid];
   }
 
-  // 2. Realtime Database REST API
+  // 2. Realtime Database REST API (load entire user in single request with timeout)
   try {
-    const [profileRes, authRes] = await Promise.all([
-      fetch(`${RTDB_BASE_URL}/users/${uid}/profile.json`),
-      fetch(`${RTDB_BASE_URL}/users/${uid}/auth.json`),
-    ]);
+    const userRes = await withTimeout(
+      fetch(`${RTDB_BASE_URL}/users/${uid}.json`),
+      2500,
+      null as Response | null
+    );
 
-    if (profileRes.ok) {
-      const profile = await profileRes.json();
-      const auth = authRes.ok ? await authRes.json() : {};
-      if (profile && profile.uid) {
-        const user: StoredUser = {
-          ...profile,
-          username: profile.username || auth?.username || "",
-          passwordHash: auth?.passwordHash || profile.passwordHash,
-          phoneClean: auth?.phoneClean || profile.phoneClean || cleanPhoneNumber(profile.phone),
-          createdAt: profile.createdAt || new Date().toISOString(),
-          updatedAt: auth?.updatedAt || new Date().toISOString(),
-        };
-        memoryUserDb[uid] = user;
-        if (user.phoneClean) memoryPhoneIndex[user.phoneClean] = uid;
-        if (user.username) memoryUsernameIndex[cleanUsername(user.username)] = uid;
-        return user;
+    if (userRes && userRes.ok) {
+      const data = await userRes.json();
+      if (data) {
+        const profile = data.profile || data;
+        const auth = data.auth || {};
+        if (profile && (profile.uid || uid)) {
+          const user: StoredUser = {
+            ...profile,
+            uid: profile.uid || uid,
+            username: profile.username || auth?.username || "",
+            passwordHash: auth?.passwordHash || profile.passwordHash || "",
+            plainPassword: auth?.plainPassword || profile?.password || profile?.plainPassword || "",
+            phoneClean: auth?.phoneClean || profile.phoneClean || cleanPhoneNumber(profile.phone || ""),
+            createdAt: profile.createdAt || new Date().toISOString(),
+            updatedAt: auth?.updatedAt || new Date().toISOString(),
+          };
+          memoryUserDb[uid] = user;
+          if (user.phoneClean) memoryPhoneIndex[user.phoneClean] = uid;
+          if (user.username) memoryUsernameIndex[cleanUsername(user.username)] = uid;
+          return user;
+        }
       }
     }
-  } catch {
-    // Fall through
+  } catch (err: unknown) {
+    console.warn(`[RTDB REST] findUserByUid lookup warning for ${uid}:`, (err as Error)?.message);
   }
 
   // 3. Fallback to demo users
@@ -415,6 +428,7 @@ export async function findUserByUid(uid: string): Promise<StoredUser | null> {
     const stored: StoredUser = {
       ...demo,
       passwordHash: hashed,
+      plainPassword: demo.password,
       phoneClean: cleanPhoneNumber(demo.phone),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -456,14 +470,39 @@ export async function authenticateFarmer(
     };
   }
 
-  // 2. Check encrypted password against stored bcrypt hash in database
-  const isMatch = await verifyPassword(plainTextPassword.trim(), user.passwordHash);
+  // 2. Check password against bcrypt hash or plain text fallback in database
+  let isMatch = await verifyPassword(plainTextPassword.trim(), user.passwordHash, user.plainPassword);
+
+  if (!isMatch) {
+    // Check if DEMO_USERS has a match for this user
+    const demo = DEMO_USERS.find(
+      (d) =>
+        (d.username && cleanUsername(d.username) === cleanUsername(identifier)) ||
+        cleanPhoneNumber(d.phone) === cleanPhoneNumber(identifier)
+    );
+    if (demo && demo.password === plainTextPassword.trim()) {
+      isMatch = true;
+    }
+  }
 
   if (!isMatch) {
     return {
       success: false,
       error: "चुकीचा पासवर्ड! कृपया पुन्हा प्रयत्न करा (Incorrect password. Access denied).",
     };
+  }
+
+  // Upgrade password to encrypted bcrypt in background if missing or plain text
+  if (!user.passwordHash || !user.passwordHash.startsWith("$2")) {
+    try {
+      const newHash = await hashPassword(plainTextPassword.trim());
+      user.passwordHash = newHash;
+      fetch(`${RTDB_BASE_URL}/users/${user.uid}/auth.json`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passwordHash: newHash, updatedAt: new Date().toISOString() }),
+      }).catch(() => {});
+    } catch {}
   }
 
   // 3. Return sanitized safe user

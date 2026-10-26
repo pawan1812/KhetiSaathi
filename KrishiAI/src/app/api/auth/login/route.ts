@@ -40,9 +40,10 @@ export async function POST(req: NextRequest) {
       message: "डेटाबेस पडताळणी यशस्वी! स्वागत आहे (Database verification successful! Welcome).",
     });
 
+    const isHttps = req.nextUrl.protocol === "https:";
     response.cookies.set("khetisaathi_session", result.sessionToken || "", {
       httpOnly: false, // Accessible to JS so client store can verify
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     response.cookies.set("khetisaathi_uid", result.user.uid, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30,

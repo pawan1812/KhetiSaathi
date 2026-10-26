@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get("khetisaathi_session")?.value;
   const uid = request.cookies.get("khetisaathi_uid")?.value;
 
-  const isAuthenticated = Boolean(sessionToken && uid);
+  const isAuthenticated = Boolean(sessionToken || uid);
 
   // 1. Check if user is attempting to access a protected webapp section
   const isProtected = PROTECTED_ROUTES.some(
@@ -50,7 +50,11 @@ export function middleware(request: NextRequest) {
 
   // 2. If authenticated user navigates to auth login/register, route them to dashboard
   if (pathname === "/auth" && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const switchUser = request.nextUrl.searchParams.get("switch");
+    const mode = request.nextUrl.searchParams.get("mode");
+    if (switchUser !== "true" && mode !== "switch") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();

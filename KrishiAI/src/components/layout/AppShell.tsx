@@ -5,7 +5,7 @@ import Link from "next/link";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
-import { getCurrentUser, logoutUser } from "@/lib/userAuth";
+import { getCurrentUser, logoutUser, setAuthenticatedUser } from "@/lib/userAuth";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -23,20 +23,30 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Verify user exists in the database
+    // Immediately grant entry & render UI
+    setMounted(true);
+
+    // Keep cookies synchronized with local state
+    if (typeof document !== "undefined") {
+      try {
+        const token = btoa(JSON.stringify({ uid: user.uid, phone: user.phone || "", username: user.username || "", time: Date.now() }));
+        document.cookie = `khetisaathi_session=${token}; path=/; max-age=2592000; SameSite=Lax`;
+        document.cookie = `khetisaathi_uid=${encodeURIComponent(user.uid)}; path=/; max-age=2592000; SameSite=Lax`;
+      } catch {}
+    }
+
+    // Refresh user profile from database in background (never kick out on slow network / temporary latency)
     fetch(`/api/auth/me?uid=${encodeURIComponent(user.uid)}`)
-      .then((res) => {
-        if (!res.ok) {
-          // User is invalid in database -> immediately revoke access
-          logoutUser();
-          router.replace("/auth");
-        } else {
-          setMounted(true);
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.success && data?.user) {
+            setAuthenticatedUser(data.user);
+          }
         }
       })
-      .catch(() => {
-        // If network issue, allow mount if user has valid cached credentials
-        setMounted(true);
+      .catch((err) => {
+        console.warn("[AppShell] Background profile sync warning:", err);
       });
   }, [router, pathname]);
 
