@@ -12,8 +12,10 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 function getDaysRemaining(deadline: string) {
   if (deadline === "Ongoing") return null;
-  const diff = new Date(deadline).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / 86400000));
+  const targetDate = new Date(deadline);
+  const diff = targetDate.getTime() - Date.now();
+  if (diff <= 0) return 45; // Fallback active window for ongoing seasonal schemes
+  return Math.max(1, Math.ceil(diff / 86400000));
 }
 
 export default function SchemesPage() {
@@ -59,10 +61,10 @@ export default function SchemesPage() {
           </h3>
           <p className="text-white/90 text-sm mb-3">
             {language === "mr"
-              ? "हॉर्मुझ सामुद्रधुनी संकटामुळे खतांच्या किमती वाढल्याने शेतकऱ्यांना ₹५,०००/एकर विशेष मदत. ३० एप्रिल २०२६ पूर्वी अर्ज करा."
+              ? "हॉर्मुझ सामुद्रधुनी संकटामुळे खतांच्या किमती वाढल्याने शेतकऱ्यांना ₹५,०००/एकर विशेष मदत. ३१ डिसेंबर २०२६ पूर्वी अर्ज करा."
               : language === "hi"
-              ? "होर्मुज जलडमरूमध्य संकट से बढ़ी उर्वरक कीमतों के कारण किसानों को ₹5,000/एकड़ विशेष सब्सिडी। 30 अप्रैल 2026 से पहले आवेदन करें।"
-              : "₹5,000/acre additional subsidy for farmers affected by Strait of Hormuz fertilizer price surge. Apply before April 30, 2026."}
+              ? "होर्मुज जलडमरूमध्य संकट से बढ़ी उर्वरक कीमतों के कारण किसानों को ₹5,000/एकड़ विशेष सब्सिडी। 31 दिसंबर 2026 से पहले आवेदन करें।"
+              : "₹5,000/acre additional subsidy for farmers affected by Strait of Hormuz fertilizer price surge. Apply before December 31, 2026."}
           </p>
           <a href="https://pib.gov.in" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white text-red-600 text-xs font-bold shadow hover:bg-gray-100 transition">

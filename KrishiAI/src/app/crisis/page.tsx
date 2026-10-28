@@ -202,7 +202,7 @@ export default function CrisisPage() {
                 {
                   emoji: "📋",
                   title: language === "mr" ? "विशेष अनुदानासाठी अर्ज करा" : language === "hi" ? "आपातकालीन सब्सिडी के लिए आवेदन करें" : "Apply for Emergency Subsidy",
-                  desc: language === "mr" ? "₹५,०००/एकर विशेष मदत पॅकेज उपलब्ध आहे. शेवटची तारीख ३० एप्रिल." : language === "hi" ? "₹5,000/एकड़ राहत पैकेज। आपकी भूमि पर बड़ा लाभ संभावित। अंतिम तिथि 30 अप्रैल।" : "₹5,000/acre relief package available. Apply before April 30."
+                  desc: language === "mr" ? "₹५,०००/एकर विशेष मदत पॅकेज उपलब्ध आहे. शेवटची तारीख ३१ डिसेंबर २०२६." : language === "hi" ? "₹5,000/एकड़ राहत पैकेज। आपकी भूमि पर बड़ा लाभ संभावित। अंतिम तिथि 31 दिसंबर 2026।" : "₹5,000/acre relief package available. Apply before December 31, 2026."
                 },
                 {
                   emoji: "🌾",

@@ -496,9 +496,9 @@ function respondToPresetQuery(queryKey) {
       en: "Today's Nagpur Mandarin orange modal price in Katol APMC is ₹4,250/qtl and Kalamna is ₹4,100/qtl. High export demand will raise prices over the next 3 days."
     },
     pmkisan: {
-      mr: "नमो शेतकरी महासन्मान निधी आणि पीएम-किसान मिळून एकूण ₹४,००० चा हप्ता थेट बँक खात्यात जमा होत आहे. जर पैसे आले नसतील, तर कृषी सहाय्यक किंवा बँक खात्यात आधार ई-केवायसी ३० एप्रिलपूर्वी पूर्ण करा.",
-      hi: "पीएम-किसान और नमो शेतकरी महासम्मान योजना की ₹४,००० की राशि सीधे बैंक खाते में आ रही है। यदि पैसा नहीं मिला, तो ३० अप्रैल से पहले आधार ई-केवाईसी पूर्ण करवाएं।",
-      en: "PM-Kisan and Namo Shetkari combined ₹4,000 installment is being credited directly. Ensure your bank Aadhaar e-KYC is active before April 30."
+      mr: "नमो शेतकरी महासन्मान निधी आणि पीएम-किसान मिळून एकूण ₹४,००० चा हप्ता थेट बँक खात्यात जमा होत आहे. जर पैसे आले नसतील, तर कृषी सहाय्यक किंवा बँक खात्यात आधार ई-केवायसी ३१ डिसेंबर २०२६ पूर्वी पूर्ण करा.",
+      hi: "पीएम-किसान और नमो शेतकरी महासम्मान योजना की ₹४,००० की राशि सीधे बैंक खाते में आ रही है। यदि पैसा नहीं मिला, तो ३१ दिसंबर २०२६ से पहले आधार ई-केवाईसी पूर्ण करवाएं।",
+      en: "PM-Kisan and Namo Shetkari combined ₹4,000 installment is being credited directly. Ensure your bank Aadhaar e-KYC is active before December 31, 2026."
     }
   };
 

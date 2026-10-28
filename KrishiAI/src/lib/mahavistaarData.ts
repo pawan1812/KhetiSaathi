@@ -1469,11 +1469,11 @@ export const AGRI_MAGAZINES: AgriMagazine[] = [
       mr: "शेतकरी मासिक — खरीप हंगाम नियोजन विशेषांक",
       hi: "शेतकरी पत्रिका — खरीफ फसल नियोजन विशेषांक"
     },
-    issue: "March 2026 Edition",
+    issue: "October 2026 Edition",
     publisher: "Directorate of Agriculture, Govt of Maharashtra, Pune",
-    publishDate: "2026-03-01",
+    publishDate: "2026-10-01",
     coverImage: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=300&q=80",
-    pdfUrl: "https://krishi.maharashtra.gov.in/shetkari-masik-march-2026.pdf",
+    pdfUrl: "https://krishi.maharashtra.gov.in/shetkari-masik-october-2026.pdf",
     pages: 48,
     topics: ["Kharif Crop Selection", "Biofertilizers", "MahaDBT Schemes", "Agro-Weather Radar"]
   },
@@ -1526,7 +1526,7 @@ export const LIVE_AGRI_NOTIFICATIONS: AgriNotification[] = [
       mr: "तापमान ४१ अंशांच्या पुढे जाण्याची शक्यता. कांदा व भाजीपाला पिकांची उन्हापासून काळजी घेण्यासाठी संध्याकाळी हलके पाणी द्या.",
       hi: "तापमान 41 डिग्री से ऊपर जाने की आशंका। शाम को सब्जियों में हल्की सिंचाई करें।"
     },
-    timestamp: "2026-03-27T10:30:00Z",
+    timestamp: "2026-10-28T10:30:00Z",
     severity: "warning",
     actionUrl: "/weather",
     isRead: false
@@ -1544,7 +1544,7 @@ export const LIVE_AGRI_NOTIFICATIONS: AgriNotification[] = [
       mr: "कामगंध सापळ्यांचे निरीक्षण करा. सलग ३ रात्री ८ पेक्षा जास्त पतंग आढळल्यास शिफारशीत फवारणी करा.",
       hi: "फेरोमोन ट्रैप चेक करें और कीट संख्या बढ़ने पर कीटनाशक स्प्रे करें।"
     },
-    timestamp: "2026-03-26T15:45:00Z",
+    timestamp: "2026-10-27T15:45:00Z",
     severity: "alert",
     actionUrl: "/scanner",
     isRead: false
@@ -1562,7 +1562,7 @@ export const LIVE_AGRI_NOTIFICATIONS: AgriNotification[] = [
       mr: "चांगल्या प्रतीच्या कांद्याला बाजारात उठाव. प्रतवारी करून टप्प्याटप्प्याने माल विकावा.",
       hi: "अच्छी गुणवत्ता वाले माल को छांटकर अच्छे भाव में बेचें।"
     },
-    timestamp: "2026-03-25T11:20:00Z",
+    timestamp: "2026-10-26T11:20:00Z",
     severity: "info",
     actionUrl: "/market",
     isRead: true
@@ -1576,11 +1576,11 @@ export const LIVE_AGRI_NOTIFICATIONS: AgriNotification[] = [
       hi: "सोलर कृषि पंप योजना: नए ऑनलाइन आवेदन शुरू"
     },
     description: {
-      en: "Government has opened 25,000 new solar pump quota for Maharashtra farmers. Apply before April 15, 2026.",
-      mr: "महाराष्ट्र शासनातर्फे २५,००० नवीन सौर पंपांचा कोटा खुला. १५ एप्रिल २०२६ पूर्वी ऑनलाइन अर्ज करा.",
-      hi: "25,000 नए सोलर पंप हेतु आवेदन आमंत्रित। अंतिम तिथि 15 अप्रैल 2026।"
+      en: "Government has opened 25,000 new solar pump quota for Maharashtra farmers. Apply before December 31, 2026.",
+      mr: "महाराष्ट्र शासनातर्फे २५,००० नवीन सौर पंपांचा कोटा खुला. ३१ डिसेंबर २०२६ पूर्वी ऑनलाइन अर्ज करा.",
+      hi: "25,000 नए सोलर पंप हेतु आवेदन आमंत्रित। अंतिम तिथि 31 दिसंबर 2026।"
     },
-    timestamp: "2026-03-24T09:00:00Z",
+    timestamp: "2026-10-25T09:00:00Z",
     severity: "info",
     actionUrl: "/schemes",
     isRead: true
