@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CROP_MASTER_LIST } from "@/lib/mahavistaarData";
+import { CROP_MASTER_LIST } from "@/lib/agriServicesData";
 import { RTDB_BASE_URL } from "@/lib/firebaseAdmin";
 import { getUserProfile } from "@/lib/firebaseService";
 

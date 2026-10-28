@@ -1,5 +1,5 @@
 # 🌾 KhetiSaathi (शेतीसाथी / खेतीसाथी)
-> **Empowering Indian Farmers with Smart Agricultural Intelligence, Multilingual AI & MahaVISTAAR-Inspired Capabilities**
+> **Empowering Indian Farmers with Smart Agricultural Intelligence, Multilingual AI & Precision Agronomy Capabilities**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
@@ -8,7 +8,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![Python](https://img.shields.io/badge/AI%20Engine-FastAPI%20%26%20PyTorch-green?logo=python)](https://fastapi.tiangolo.com/)
 
-**KhetiSaathi** is a comprehensive, production-ready smart agriculture ecosystem designed for Indian smallholder farmers, agricultural cooperatives, agronomists, and agri-entrepreneurs. It seamlessly bridges cutting-edge AI (Google Gemini, DeepSeek Reasoner, Groq Llama-3.3-70b), deterministic university agronomic research (MPKV Rahuri, PDKV Akola), live Open-Meteo weather radars, APMC mandi rates, and 17 core agricultural services modeled after **MahaVISTAAR-AI v2.1.7** (MahaPoCRA & ICAR).
+**KhetiSaathi** is a comprehensive, production-ready smart agriculture ecosystem designed for Indian smallholder farmers, agricultural cooperatives, agronomists, and agri-entrepreneurs. It seamlessly bridges cutting-edge AI (Google Gemini, DeepSeek Reasoner, Groq Llama-3.3-70b), deterministic university agronomic research (MPKV Rahuri, PDKV Akola), live Open-Meteo weather radars, APMC mandi rates, and 17 core digital agricultural services (MahaPoCRA & ICAR).
 
 ---
 
@@ -56,7 +56,7 @@ All demo accounts are seeded with encrypted bcrypt hashes and direct indexes in 
 
 ---
 
-## 🌾 17 MahaVISTAAR-Inspired Smart Agricultural Services
+## 🌾 17 Smart Agricultural Services
 
 1. **AI Agricultural Assistant (AI Sahayak)**: Trilingual agronomic chatbot with `<think>` agronomic reasoning traces and voice input (`mr-IN`, `hi-IN`, `en-IN`).
 2. **AI Pest & Disease Doctor**: Instant multimodal leaf disease diagnosis with cultural, chemical, biological (NSKE 5%, *Trichoderma viride*), and Economic Threshold Level (ETL) management.

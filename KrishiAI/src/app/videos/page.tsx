@@ -17,7 +17,7 @@ import {
   Sparkles,
   ExternalLink
 } from "lucide-react";
-import { SHETISHALA_VIDEOS, VideoTutorial } from "@/lib/mahavistaarData";
+import { SHETISHALA_VIDEOS, VideoTutorial } from "@/lib/agriServicesData";
 
 export default function VideosPage() {
   const { language } = useAppStore();

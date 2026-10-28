@@ -10,7 +10,7 @@ import {
   FertilizerCalculationResult,
   AreaUnit
 } from "@/lib/fertilizerEngine";
-import { CROP_MASTER_LIST } from "@/lib/mahavistaarData";
+import { CROP_MASTER_LIST } from "@/lib/agriServicesData";
 import {
   Calculator,
   FlaskConical,

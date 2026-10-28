@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LIVE_AGRI_NOTIFICATIONS, AgriNotification } from "@/lib/mahavistaarData";
+import { LIVE_AGRI_NOTIFICATIONS, AgriNotification } from "@/lib/agriServicesData";
 
 let notifDb: AgriNotification[] = [...LIVE_AGRI_NOTIFICATIONS];
 

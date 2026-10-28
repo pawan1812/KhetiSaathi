@@ -15,7 +15,7 @@ import { TRANSLATIONS, Language } from "../constants/translations";
 import { APMC_MANDIS } from "../constants/mandiData";
 import { ACTIVE_CRISIS_ALERTS } from "../services/weatherService";
 
-interface MahaVistaarService {
+interface SmartAgriService {
   id: string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
@@ -30,7 +30,7 @@ interface MahaVistaarService {
   };
 }
 
-const MAHAVISTAAR_MOBILE_SERVICES: MahaVistaarService[] = [
+const SMART_AGRI_SERVICES: SmartAgriService[] = [
   {
     id: "cropStages",
     icon: "calendar-outline",
@@ -306,7 +306,7 @@ interface Props {
 export default function HomeScreen({ language, onLanguageChange, onNavigateTab }: Props) {
   const t = TRANSLATIONS[language];
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [activeMahaModal, setActiveMahaModal] = useState<MahaVistaarService | null>(null);
+  const [activeMahaModal, setActiveMahaModal] = useState<SmartAgriService | null>(null);
 
   // Daily AI advice content per language
   const dailyTip = {
@@ -624,12 +624,12 @@ export default function HomeScreen({ language, onLanguageChange, onNavigateTab }
         <Text style={styles.tipBody}>{dailyTip.tip}</Text>
       </View>
 
-      {/* MahaVISTAAR Smart Agricultural Services Hub */}
+      {/* Smart Agricultural Services Hub */}
       <View style={styles.mahaSectionHeader}>
         <View style={styles.mahaTitleRow}>
           <Ionicons name="sparkles" size={18} color="#22c55e" />
           <Text style={styles.mahaHeading}>
-            {language === "mr" ? "महाविस्तार कृषी सेवा केंद्र" : language === "hi" ? "महाविस्तार कृषि सेवाएं" : "MahaVISTAAR Agri Services"}
+            {language === "mr" ? "स्मार्ट कृषी सेवा केंद्र" : language === "hi" ? "स्मार्ट कृषि सेवाएं" : "Smart Agri Services"}
           </Text>
         </View>
         <Text style={styles.mahaSubHeading}>
@@ -642,7 +642,7 @@ export default function HomeScreen({ language, onLanguageChange, onNavigateTab }
       </View>
 
       <View style={styles.mahaGrid}>
-        {MAHAVISTAAR_MOBILE_SERVICES.map((serv) => (
+        {SMART_AGRI_SERVICES.map((serv) => (
           <TouchableOpacity
             key={serv.id}
             style={styles.mahaCard}
@@ -667,7 +667,7 @@ export default function HomeScreen({ language, onLanguageChange, onNavigateTab }
         ))}
       </View>
 
-      {/* MahaVISTAAR Modal Details */}
+      {/* Smart Agri Service Modal Details */}
       <Modal
         visible={!!activeMahaModal}
         transparent

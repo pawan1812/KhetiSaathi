@@ -4,7 +4,7 @@ import AppShell from "@/components/layout/AppShell";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store";
 import { getTranslation } from "@/lib/translations";
-import { CROP_MASTER_LIST, PEST_DISEASE_DB, CropMaster, CropStage } from "@/lib/mahavistaarData";
+import { CROP_MASTER_LIST, PEST_DISEASE_DB, CropMaster, CropStage } from "@/lib/agriServicesData";
 import {
   Calendar,
   Clock,

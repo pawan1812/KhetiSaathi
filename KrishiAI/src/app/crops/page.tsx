@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/lib/store";
 import { getTranslation } from "@/lib/translations";
-import { CROP_MASTER_LIST, CropMaster } from "@/lib/mahavistaarData";
+import { CROP_MASTER_LIST, CropMaster } from "@/lib/agriServicesData";
 import {
   Sprout,
   Plus,

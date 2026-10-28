@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CHC_CENTRES_DB } from "@/lib/mahavistaarData";
+import { CHC_CENTRES_DB } from "@/lib/agriServicesData";
 
 export async function GET(req: NextRequest) {
   try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { WAREHOUSE_DIRECTORY } from "@/lib/mahavistaarData";
+import { WAREHOUSE_DIRECTORY } from "@/lib/agriServicesData";
 
 export async function GET(req: NextRequest) {
   try {

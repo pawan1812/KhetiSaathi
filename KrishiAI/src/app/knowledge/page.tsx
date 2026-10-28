@@ -17,7 +17,7 @@ import {
   Building2,
   Layers
 } from "lucide-react";
-import { KNOWLEDGE_ARTICLES, KnowledgeArticle } from "@/lib/mahavistaarData";
+import { KNOWLEDGE_ARTICLES, KnowledgeArticle } from "@/lib/agriServicesData";
 
 export default function KnowledgePage() {
   const { language } = useAppStore();

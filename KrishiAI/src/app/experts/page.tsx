@@ -17,7 +17,7 @@ import {
   Plus,
   Filter
 } from "lucide-react";
-import { EXPERT_QA_LIST, ExpertQA } from "@/lib/mahavistaarData";
+import { EXPERT_QA_LIST, ExpertQA } from "@/lib/agriServicesData";
 
 export default function ExpertsPage() {
   const { language } = useAppStore();

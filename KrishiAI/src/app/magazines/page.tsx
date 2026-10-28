@@ -15,7 +15,7 @@ import {
   X,
   Sparkles
 } from "lucide-react";
-import { AGRI_MAGAZINES, AgriMagazine } from "@/lib/mahavistaarData";
+import { AGRI_MAGAZINES, AgriMagazine } from "@/lib/agriServicesData";
 
 export default function MagazinesPage() {
   const { language } = useAppStore();

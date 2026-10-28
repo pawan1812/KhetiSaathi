@@ -14,7 +14,7 @@ import {
   Filter,
   CheckCheck
 } from "lucide-react";
-import { LIVE_AGRI_NOTIFICATIONS, AgriNotification } from "@/lib/mahavistaarData";
+import { LIVE_AGRI_NOTIFICATIONS, AgriNotification } from "@/lib/agriServicesData";
 
 export default function NotificationsPage() {
   const { language } = useAppStore();

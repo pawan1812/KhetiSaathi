@@ -422,7 +422,7 @@ export default function AgriServicesHub() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Advanced Agricultural Capabilities</span>
+            <span>{language === "mr" ? "स्मार्ट कृषी सेवा केंद्र" : language === "hi" ? "स्मार्ट कृषि सेवाएं" : "Smart Agricultural Services"}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {language === "mr"

@@ -1,6 +1,6 @@
 // ============================================================================
-// KHETISAATHI — MAHAVISTAAR VERIFIED AGRICULTURAL DATA & KNOWLEDGE ENGINE
-// Modeled after MahaVISTAAR-AI v2.1.7 (MahaPoCRA & ICAR-IASRI / WOTR)
+// KHETISAATHI — VERIFIED AGRICULTURAL DATA & KNOWLEDGE ENGINE
+// Agronomic intelligence modeled with ICAR & State Agri University research
 // ============================================================================
 
 export interface CropStage {

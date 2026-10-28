@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { EXPERT_QA_LIST, ExpertQA } from "@/lib/mahavistaarData";
+import { EXPERT_QA_LIST, ExpertQA } from "@/lib/agriServicesData";
 
 let questionsDb: ExpertQA[] = [...EXPERT_QA_LIST];
 
