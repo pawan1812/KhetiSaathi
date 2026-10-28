@@ -173,7 +173,7 @@ export default function CropManagementPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold mb-1">
               <Sprout className="w-3.5 h-3.5" />
-              <span>MahaVISTAAR Crop Management</span>
+              <span>Intelligent Crop Management</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               {t.cropManagement.title}

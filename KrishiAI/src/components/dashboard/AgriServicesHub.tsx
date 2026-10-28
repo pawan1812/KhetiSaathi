@@ -422,13 +422,13 @@ export default function AgriServicesHub() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>MahaVISTAAR Agricultural Capabilities</span>
+            <span>Advanced Agricultural Capabilities</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {language === "mr"
-              ? "कृषी सेवा केंद्र व महाविस्तार डॅशबोर्ड"
+              ? "कृषी सेवा केंद्र व आधुनिक शेती डॅशबोर्ड"
               : language === "hi"
-              ? "कृषि सेवाएं एवं महाविस्तार डैशबोर्ड"
+              ? "कृषि सेवाएं एवं स्मार्ट कृषि डैशबोर्ड"
               : "Agricultural Services Dashboard"}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">

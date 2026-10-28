@@ -220,7 +220,7 @@ VERIFIED AGRICULTURAL KNOWLEDGE REFERENCE:
           message: {
             role: "assistant",
             content: fallbackText,
-            reasoning_content: "MahaVISTAAR expert agronomy engine fallback engaged.",
+            reasoning_content: "Expert agronomy engine fallback engaged.",
           },
         },
       ],

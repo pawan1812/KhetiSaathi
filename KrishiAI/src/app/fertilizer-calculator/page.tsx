@@ -91,7 +91,7 @@ export default function FertilizerCalculatorPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-400 text-xs font-bold mb-1">
               <Calculator className="w-3.5 h-3.5" />
-              <span>MahaVISTAAR Precision Nutrition</span>
+              <span>Precision Nutrition Engine</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               {t.fertilizerCalc.title}

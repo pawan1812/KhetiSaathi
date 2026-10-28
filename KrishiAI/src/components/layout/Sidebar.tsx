@@ -174,7 +174,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-            {language === "mr" ? "महाविस्तार-एआय सुसज्ज" : language === "hi" ? "महाविस्तार-एआई सुसज्जित" : "MahaVISTAAR Powered"}
+            {language === "mr" ? "स्मार्ट एआय सुसज्ज" : language === "hi" ? "स्मार्ट एआई सुसज्जित" : "Smart AI Powered"}
           </p>
         </div>
         <p className="text-[10px] mt-0.5 leading-snug text-emerald-700/80 dark:text-emerald-400/80">

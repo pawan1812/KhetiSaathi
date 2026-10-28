@@ -239,7 +239,7 @@ export default function Dashboard() {
           <ActionCard href="/chat"          icon={<MessageCircle className="w-6 h-6" />} label={t.dashboard.askAi}   iconBg="rgba(245,158,11,0.12)" iconColor="#D97706" />
         </motion.div>
 
-        {/* ── MAHAVISTAAR AGRICULTURAL SERVICES DASHBOARD (17 SERVICES) ── */}
+        {/* ── AGRICULTURAL SERVICES DASHBOARD (17 SERVICES) ── */}
         <motion.div variants={up}>
           <AgriServicesHub />
         </motion.div>

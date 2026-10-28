@@ -573,7 +573,7 @@ export const translations: Record<Language, Translations> = {
     },
     agriServices: {
       sectionTitle: "Agricultural Services Hub",
-      sectionSubtitle: "Comprehensive MahaVISTAAR-inspired intelligent farm tools and advisory",
+      sectionSubtitle: "Comprehensive intelligent farm tools and precision agricultural advisory",
       categories: {
         aiAndProtection: "AI & Crop Protection",
         farmAndAdvisory: "Crop & Weather Advisory",
@@ -949,8 +949,8 @@ export const translations: Record<Language, Translations> = {
       substituteSolution: "नैनो यूरिया समाधान",
     },
     agriServices: {
-      sectionTitle: "कृषि सेवाएं एवं महाविस्तार हब",
-      sectionSubtitle: "महाविस्तार-एआई से प्रेरित संपूर्ण कृषि प्रबंधन, मौसम एवं तकनीकी सलाह",
+      sectionTitle: "कृषि सेवाएं एवं किसान सुविधा हब",
+      sectionSubtitle: "स्मार्ट एआई आधारित संपूर्ण कृषि प्रबंधन, मौसम एवं तकनीकी सलाह",
       categories: {
         aiAndProtection: "एआई एवं फसल सुरक्षा",
         farmAndAdvisory: "फसल प्रबंधन एवं मौसम",
@@ -1326,8 +1326,8 @@ export const translations: Record<Language, Translations> = {
       substituteSolution: "नॅनो युरिया पर्याय",
     },
     agriServices: {
-      sectionTitle: "कृषी सेवा केंद्र व महाविस्तार हब",
-      sectionSubtitle: "महाविस्तार-एआय (MahaVISTAAR) प्रेरित आधुनिक शेती, हवामान व पीक व्यवस्थापन",
+      sectionTitle: "कृषी सेवा केंद्र व शेतकरी सुविधा हब",
+      sectionSubtitle: "स्मार्ट एआय तंत्रज्ञानाने समृद्ध आधुनिक शेती, हवामान व पीक व्यवस्थापन",
       categories: {
         aiAndProtection: "एआय व पीक संरक्षण",
         farmAndAdvisory: "पीक व्यवस्थापन व हवामान",
