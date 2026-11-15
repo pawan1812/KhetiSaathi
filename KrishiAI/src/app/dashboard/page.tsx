@@ -23,6 +23,7 @@ const up = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition
 
 import { useState, useEffect } from "react";
 import AgriServicesHub from "@/components/dashboard/AgriServicesHub";
+import TodayFarmActionCard from "@/components/dashboard/TodayFarmActionCard";
 
 export default function Dashboard() {
   const { language } = useAppStore();
@@ -84,6 +85,11 @@ export default function Dashboard() {
             icon={<FileText className="w-5 h-5" />}
             iconBg="rgba(139,92,246,0.12)" iconColor="#7C3AED"
           />
+        </motion.div>
+
+        {/* ── PROACTIVE FARM ACTION AGENT CARD ── */}
+        <motion.div variants={up}>
+          <TodayFarmActionCard uid={user?.uid} />
         </motion.div>
 
         {/* ── USER'S LIVE FARM PROFILE & CROPS BANNER ── */}

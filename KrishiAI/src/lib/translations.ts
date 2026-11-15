@@ -349,7 +349,22 @@ export interface Translations {
     mandiUpdates: string;
     markAllRead: string;
   };
-
+  farmAction: {
+    title: string;
+    subtitle: string;
+    highUrgency: string;
+    mediumUrgency: string;
+    lowUrgency: string;
+    whyThisAction: string;
+    refreshAction: string;
+    analyzing: string;
+    wasHelpful: string;
+    yes: string;
+    no: string;
+    didYouAct: string;
+    feedbackThanks: string;
+    offlineFallbackNotice: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -727,7 +742,22 @@ export const translations: Record<Language, Translations> = {
       mandiUpdates: "Mandi Price Alerts",
       markAllRead: "Mark All as Read",
     },
-
+    farmAction: {
+      title: "Today's Farm Action",
+      subtitle: "Proactive AI intelligence tailored to your crop, weather & market",
+      highUrgency: "High Priority",
+      mediumUrgency: "Moderate Action",
+      lowUrgency: "Routine / Normal",
+      whyThisAction: "Agronomic Reason:",
+      refreshAction: "Refresh Advisory",
+      analyzing: "Analyzing field data...",
+      wasHelpful: "Was this helpful?",
+      yes: "Yes",
+      no: "No",
+      didYouAct: "Did you act on it?",
+      feedbackThanks: "Thank you for helping us tune the farm agent!",
+      offlineFallbackNotice: "Verified agricultural advisory based on current stage & forecast."
+    },
   },
 
   hi: {
@@ -1104,7 +1134,22 @@ export const translations: Record<Language, Translations> = {
       mandiUpdates: "मंडी भाव अलर्ट",
       markAllRead: "सभी को पढ़ा हुआ मार्क करें",
     },
-
+    farmAction: {
+      title: "आज का प्रमुख कृषि कार्य",
+      subtitle: "आपकी फसल, मौसम और मंडी भाव के आधार पर सक्रिय एआई सलाह",
+      highUrgency: "अत्यंत जरूरी",
+      mediumUrgency: "आवश्यक कार्य",
+      lowUrgency: "सामान्य स्थिति",
+      whyThisAction: "वैज्ञानिक कारण:",
+      refreshAction: "सलाह अपडेट करें",
+      analyzing: "खेत और मौसम का विश्लेषण जारी है...",
+      wasHelpful: "क्या यह सलाह उपयोगी थी?",
+      yes: "हाँ",
+      no: "नहीं",
+      didYouAct: "क्या आपने इस पर अमल किया?",
+      feedbackThanks: "फीडबैक के लिए धन्यवाद!",
+      offlineFallbackNotice: "मौसम और विकास अवस्था पर आधारित प्रमाणित कृषि परामर्श।"
+    },
   },
 
   mr: {
@@ -1481,7 +1526,22 @@ export const translations: Record<Language, Translations> = {
       mandiUpdates: "बाजारभाव सूचना",
       markAllRead: "सर्व वाचले म्हणून चिन्हांकित करा",
     },
-
+    farmAction: {
+      title: "आजचा महत्त्वाचा शेती सल्ला",
+      subtitle: "तुमचे पीक, हवामान आणि बाजारभावानुसार कृषी एआय कृती आराखडा",
+      highUrgency: "तातडीची कृती",
+      mediumUrgency: "नियोजित कृती",
+      lowUrgency: "सामान्य स्थिती",
+      whyThisAction: "शास्त्रोक्त कारण:",
+      refreshAction: "सल्ला अद्ययावत करा",
+      analyzing: "हवामान व पिकांचे विश्लेषण चालू आहे...",
+      wasHelpful: "हा सल्ला उपयुक्त ठरला का?",
+      yes: "होय",
+      no: "नाही",
+      didYouAct: "तुम्ही यानुसार कृती केली का?",
+      feedbackThanks: "प्रतिक्रियेबद्दल धन्यवाद!",
+      offlineFallbackNotice: "हवामान अंदाज व वाढीच्या टप्प्यावर आधारित प्रमाणित सल्ला."
+    },
   },
 };
 

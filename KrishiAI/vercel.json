@@ -23,5 +23,11 @@
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/farm-action",
+      "schedule": "0 0 * * *"
+    }
   ]
 }

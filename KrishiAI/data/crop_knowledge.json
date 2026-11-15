@@ -1,0 +1,380 @@
+{
+  "crops": {
+    "cotton": {
+      "stages": {
+        "sowing_emergence": {
+          "name": "Germination & Emergence (0-15 DAS)",
+          "risks": [
+            "Seed rot or fungal damping off due to waterlogging",
+            "Crust formation on heavy clay soil obstructing germination",
+            "Early sucking pests like thrips and aphids"
+          ],
+          "weatherRules": [
+            {
+              "id": "cot-rule-1",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Avoid irrigation and fertilizer broadcasting; ensure drainage channels are open to prevent seed rotting.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-2",
+              "condition": "temp_max_gt_40",
+              "action": "High soil surface heat risk; provide light evening sprinkler or furrow irrigation to protect tender seedlings.",
+              "verified": false
+            }
+          ]
+        },
+        "vegetative": {
+          "name": "Vegetative Growth & Square Formation (16-50 DAS)",
+          "risks": [
+            "Aphid and jassid infestation curling young leaves",
+            "Square (bud) drop due to moisture stress or excessive moisture",
+            "Weed competition suppressing root aeration"
+          ],
+          "weatherRules": [
+            {
+              "id": "cot-rule-3",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Do not spray foliar nutrients or bio-pesticides within 24 hours of expected rain.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-4",
+              "condition": "wind_gt_20",
+              "action": "Wind speed exceeds 20 km/h; postpone foliar applications to avoid spray drift loss.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-5",
+              "condition": "temp_max_gt_38",
+              "action": "Schedule irrigation in morning or late evening; mulching between rows reduces soil water evaporation.",
+              "verified": false
+            }
+          ]
+        },
+        "flowering": {
+          "name": "Flowering & Boll Setting (51-90 DAS)",
+          "risks": [
+            "Pink bollworm larval entry into fresh green bolls",
+            "Premature flower and boll shedding from dry spells or sudden heavy downpours",
+            "Bacterial blight or grey mildew spread during damp cloudy weather"
+          ],
+          "weatherRules": [
+            {
+              "id": "cot-rule-6",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Rain expected; delay any planned protective spray and postpone irrigation.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-7",
+              "condition": "temp_max_gt_38",
+              "action": "Extreme heat during peak flowering causes pollen desiccation; ensure uniform soil moisture.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-8",
+              "condition": "wind_gt_22",
+              "action": "Avoid spraying and inspect tall cotton plants for lodging risk.",
+              "verified": false
+            }
+          ]
+        },
+        "maturity_harvest": {
+          "name": "Boll Maturation & Picking (91+ DAS)",
+          "risks": [
+            "Rain wetting open cotton fiber causing discoloration and fungal staining",
+            "Mealybug damage on opening bolls",
+            "Loss of fiber quality due to delayed picking"
+          ],
+          "weatherRules": [
+            {
+              "id": "cot-rule-9",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Rush picking of all open fluffy bolls immediately before rain and store in a completely dry covered shed.",
+              "verified": false
+            },
+            {
+              "id": "cot-rule-10",
+              "condition": "rain_prob_lt_20",
+              "action": "Dry clear weather is ideal for picking cotton after morning dew evaporates.",
+              "verified": false
+            }
+          ]
+        }
+      }
+    },
+    "soybean": {
+      "stages": {
+        "sowing_seedling": {
+          "name": "Germination & Seedling (0-18 DAS)",
+          "risks": [
+            "Poor emergence if heavy downpour causes soil compaction",
+            "Stem fly and girdle beetle infestation at hypocotyl",
+            "Seed rot in poorly drained low-lying areas"
+          ],
+          "weatherRules": [
+            {
+              "id": "soy-rule-1",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Postpone sowing if heavy rain is forecasted; clear drainage outlets.",
+              "verified": false
+            },
+            {
+              "id": "soy-rule-2",
+              "condition": "dry_spell_gt_7d",
+              "action": "If prolonged dry spell threatens young seedlings, apply protective sprinkler irrigation.",
+              "verified": false
+            }
+          ]
+        },
+        "vegetative": {
+          "name": "Branching & Canopy Growth (19-40 DAS)",
+          "risks": [
+            "Spodoptera (tobacco caterpillar) defoliation",
+            "Yellow mosaic virus transmitted by whiteflies",
+            "Weed smothering during first 35 critical days"
+          ],
+          "weatherRules": [
+            {
+              "id": "soy-rule-3",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Avoid spraying and weeding operations when rain probability is 60% or higher.",
+              "verified": false
+            },
+            {
+              "id": "soy-rule-4",
+              "condition": "wind_gt_20",
+              "action": "High wind causes spray drift; wait for calm early morning hours.",
+              "verified": false
+            }
+          ]
+        },
+        "flowering_pod": {
+          "name": "Flowering & Pod Initiation (41-65 DAS)",
+          "risks": [
+            "Flower drop if moisture stress coincides with blooming",
+            "Pod borer larvae damaging young pods",
+            "Rust fungus outbreaks in humid cloudy weather"
+          ],
+          "weatherRules": [
+            {
+              "id": "soy-rule-5",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Hold off on all foliar sprays and withhold field irrigation.",
+              "verified": false
+            },
+            {
+              "id": "soy-rule-6",
+              "condition": "temp_max_gt_36",
+              "action": "High daytime temperatures increase pod abortion; irrigate lightly if soil moisture is depleting.",
+              "verified": false
+            }
+          ]
+        },
+        "pod_filling_harvest": {
+          "name": "Pod Filling & Maturity (66+ DAS)",
+          "risks": [
+            "Pod shattering if over-dry, or seed discoloration/sprouting if caught in unexpected post-monsoon rain",
+            "Charcoal rot under late-season heat stress"
+          ],
+          "weatherRules": [
+            {
+              "id": "soy-rule-7",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Rain alert: expedite harvest of mature golden-brown crop and move harvested bundles to elevated dry tarpaulins.",
+              "verified": false
+            },
+            {
+              "id": "soy-rule-8",
+              "condition": "rain_prob_lt_20",
+              "action": "Clear dry sunny days: proceed with morning/evening harvest and threshing.",
+              "verified": false
+            }
+          ]
+        }
+      }
+    },
+    "wheat": {
+      "stages": {
+        "crown_root_initiation": {
+          "name": "Crown Root Initiation & Tillering (0-35 DAS)",
+          "risks": [
+            "Failure to develop crown roots if CRI irrigation is skipped around 21 DAS",
+            "Termite attack in un-decomposed organic matter",
+            "Early weed emergence reducing tiller count"
+          ],
+          "weatherRules": [
+            {
+              "id": "wht-rule-1",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Delay scheduled CRI irrigation if rainfall of over 10mm is forecast.",
+              "verified": false
+            },
+            {
+              "id": "wht-rule-2",
+              "condition": "temp_max_gt_32",
+              "action": "Higher winter temperature hurts tillering; ensure sufficient soil moisture.",
+              "verified": false
+            }
+          ]
+        },
+        "jointing_booting": {
+          "name": "Jointing & Booting (36-70 DAS)",
+          "risks": [
+            "Yellow / stripe rust appearance in cold humid weather",
+            "Nitrogen deficiency showing on lower leaves"
+          ],
+          "weatherRules": [
+            {
+              "id": "wht-rule-3",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Postpone fungicide or foliar sprays; avoid water ponding.",
+              "verified": false
+            },
+            {
+              "id": "wht-rule-4",
+              "condition": "wind_gt_22",
+              "action": "Strong wind combined with wet soil causes lodging; do not irrigate under windy forecast.",
+              "verified": false
+            }
+          ]
+        },
+        "heading_flowering": {
+          "name": "Heading & Flowering (71-90 DAS)",
+          "risks": [
+            "Aphid infestation in dense stands",
+            "Head blight or loose smut development",
+            "Terminal heat stress"
+          ],
+          "weatherRules": [
+            {
+              "id": "wht-rule-5",
+              "condition": "temp_max_gt_35",
+              "action": "Heat stress alert: apply light evening irrigation or sprinkler misting to keep microclimate cool.",
+              "verified": false
+            },
+            {
+              "id": "wht-rule-6",
+              "condition": "wind_gt_20",
+              "action": "Avoid irrigating tall headed wheat when gusty winds are predicted to prevent lodging.",
+              "verified": false
+            }
+          ]
+        },
+        "grain_filling_maturity": {
+          "name": "Grain Filling & Dough Stage (91+ DAS)",
+          "risks": [
+            "Shriveling of grains due to sudden western disturbance heat or hot dry winds",
+            "Lodging from hail or storm"
+          ],
+          "weatherRules": [
+            {
+              "id": "wht-rule-7",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Hail/rain risk: halt all irrigation; secure drainage and prepare harvest machinery.",
+              "verified": false
+            },
+            {
+              "id": "wht-rule-8",
+              "condition": "temp_max_gt_35",
+              "action": "Warm winds accelerate ripening prematurely; ensure last protective irrigation is completed before soil dries hard.",
+              "verified": false
+            }
+          ]
+        }
+      }
+    },
+    "tomato": {
+      "stages": {
+        "nursery_establishment": {
+          "name": "Transplanting & Establishment (0-20 DAS)",
+          "risks": [
+            "Transplant shock, damping off, and cutworm damage",
+            "Sun scorch on unhardened nursery seedlings"
+          ],
+          "weatherRules": [
+            {
+              "id": "tom-rule-1",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Ensure raised beds have clear furrows for drainage; delay transplanting if flash storm expected.",
+              "verified": false
+            },
+            {
+              "id": "tom-rule-2",
+              "condition": "temp_max_gt_38",
+              "action": "Protect young transplants from afternoon scorch; irrigate via drip in the evening.",
+              "verified": false
+            }
+          ]
+        },
+        "vegetative_branching": {
+          "name": "Vegetative Growth & Staking (21-45 DAS)",
+          "risks": [
+            "Early blight (Alternaria) forming target board spots on lower leaves",
+            "Leaf curl virus spread by whiteflies",
+            "Lodging of stems without trellis support"
+          ],
+          "weatherRules": [
+            {
+              "id": "tom-rule-3",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Avoid spraying foliar remedies right before rain; inspect staking wires.",
+              "verified": false
+            },
+            {
+              "id": "tom-rule-4",
+              "condition": "wind_gt_20",
+              "action": "Inspect bamboo trellis and ties to prevent branch snapping in gusty wind.",
+              "verified": false
+            }
+          ]
+        },
+        "flowering_fruiting": {
+          "name": "Flowering & Fruit Development (46-80 DAS)",
+          "risks": [
+            "Blossom end rot caused by calcium deficiency aggravated by erratic watering",
+            "Fruit borer (Helicoverpa) boring into green fruits",
+            "Late blight in cold wet nights"
+          ],
+          "weatherRules": [
+            {
+              "id": "tom-rule-5",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "High late-blight risk under rainy humid conditions; delay irrigation and keep beds drained.",
+              "verified": false
+            },
+            {
+              "id": "tom-rule-6",
+              "condition": "temp_max_gt_36",
+              "action": "Pollen sterility occurs above 36°C; maintain consistent drip irrigation intervals.",
+              "verified": false
+            }
+          ]
+        },
+        "harvesting": {
+          "name": "Fruit Ripening & Harvesting (81+ DAS)",
+          "risks": [
+            "Fruit cracking following sudden heavy rainfall after dry spell",
+            "Sun scald on fruits exposed after defoliation",
+            "Post-harvest rot if picked wet"
+          ],
+          "weatherRules": [
+            {
+              "id": "tom-rule-7",
+              "condition": "rain_prob_gte_60_in_24h",
+              "action": "Pick all breaker and mature green/pink fruits immediately before rain to avoid fruit splitting.",
+              "verified": false
+            },
+            {
+              "id": "tom-rule-8",
+              "condition": "rain_prob_lt_20",
+              "action": "Dry clear weather: pick ripe fruits in cool morning hours and pack in ventilated crates.",
+              "verified": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

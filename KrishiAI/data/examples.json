@@ -1,0 +1,314 @@
+{
+  "examples": [
+    {
+      "id": "ex-01-rain-marathi",
+      "language": "mr",
+      "scenario": "rain_coming_foliar_spray_risk",
+      "input": {
+        "crop": "cotton",
+        "stage": "vegetative",
+        "days_after_sowing": 35,
+        "weather": {
+          "temp_max": 31,
+          "rain_probability": 85,
+          "rain_mm": 18,
+          "high_rain_hours": ["14:00", "15:00", "16:00"],
+          "wind_speed": 12
+        },
+        "price": {
+          "modal_price": 7250,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "high",
+        "message": "उद्या दुपारी दोन ते चार दरम्यान जोरदार पावसाची शक्यता आहे. कोणतीही औषध फवारणी किंवा खत टाकणे तातडीने पुढे ढकला. शेतातील पाण्याचा निचरा व्यवस्थित चालू ठेवा.",
+        "reason": "85% पावसाची शक्यता असल्याने फवारणी वाहून जाईल आणि खताचे नुकसान होईल."
+      }
+    },
+    {
+      "id": "ex-02-rain-hindi",
+      "language": "hi",
+      "scenario": "rain_coming_harvest_maturity",
+      "input": {
+        "crop": "soybean",
+        "stage": "pod_filling_harvest",
+        "days_after_sowing": 92,
+        "weather": {
+          "temp_max": 29,
+          "rain_probability": 75,
+          "rain_mm": 14,
+          "high_rain_hours": ["11:00", "12:00", "13:00"],
+          "wind_speed": 10
+        },
+        "price": {
+          "modal_price": 4720,
+          "trend": "rising"
+        }
+      },
+      "output": {
+        "urgency": "high",
+        "message": "कल दोपहर ग्यारह बजे के बाद बारिश की संभावना है। पकी हुई सोयाबीन की कटाई तुरंत कर सुरक्षित स्थान पर तिरपाल से ढक दें। अधिक जानकारी हेतु स्थानीय कृषि अधिकारी से संपर्क करें।",
+        "reason": "75% बारिश से तैयार फलियों में दाने भीगने और फली चटकने का भारी जोखिम है।"
+      }
+    },
+    {
+      "id": "ex-03-heat-marathi",
+      "language": "mr",
+      "scenario": "heat_stress_flowering",
+      "input": {
+        "crop": "wheat",
+        "stage": "heading_flowering",
+        "days_after_sowing": 78,
+        "weather": {
+          "temp_max": 37,
+          "rain_probability": 5,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 14
+        },
+        "price": {
+          "modal_price": 2440,
+          "trend": "rising"
+        }
+      },
+      "output": {
+        "urgency": "high",
+        "message": "तापमान ३७ अंशांच्या पुढे जात असल्याने पिकावर उष्णतेचा ताण येईल. गव्हाला संध्याकाळच्या थंड वेळेत हलके पाणी द्या. दुपारच्या उन्हात पाणी देणे टाळा.",
+        "reason": "फुलोरा अवस्थेत कडक उन्हामुळे दाणे भरण्यावर विपरीत परिणाम होतो."
+      }
+    },
+    {
+      "id": "ex-04-heat-hindi",
+      "language": "hi",
+      "scenario": "heat_stress_vegetative",
+      "input": {
+        "crop": "tomato",
+        "stage": "flowering_fruiting",
+        "days_after_sowing": 55,
+        "weather": {
+          "temp_max": 38,
+          "rain_probability": 0,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 8
+        },
+        "price": {
+          "modal_price": 1650,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "medium",
+        "message": "दिन का तापमान ३८ अंश तक पहुंचने से फूल झड़ने का खतरा है। शाम के समय ड्रिप से संतुलित नमी बनाए रखें। क्या खुराक देनी है इसके लिए नजदीकी केवीके या कृषि केंद्र से सलाह लें।",
+        "reason": "अत्यधिक गर्मी में नमी बनाए रखने से टमाटर के फूल सुरक्षित रहते हैं।"
+      }
+    },
+    {
+      "id": "ex-05-price-rising-marathi",
+      "language": "mr",
+      "scenario": "good_mandi_price",
+      "input": {
+        "crop": "soybean",
+        "stage": "pod_filling_harvest",
+        "days_after_sowing": 98,
+        "weather": {
+          "temp_max": 30,
+          "rain_probability": 10,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 7
+        },
+        "price": {
+          "modal_price": 4950,
+          "msp": 4892,
+          "trend": "rising"
+        }
+      },
+      "output": {
+        "urgency": "medium",
+        "message": "बाजार समितीत सोयाबीनचे भाव हमीभावापेक्षा वर ४,९५० रुपयांवर गेले आहेत. माल चांगला वाळवून प्रतवारी करून विक्रीचा विचार करू शकता. हवामान स्वच्छ असून माल वाहतुकीसाठी योग्य आहे.",
+        "reason": "भाव तेजीत आहेत आणि पुढील दोन दिवस हवामान पूर्णपणे कोरडे आहे."
+      }
+    },
+    {
+      "id": "ex-06-price-rising-hindi",
+      "language": "hi",
+      "scenario": "good_mandi_price",
+      "input": {
+        "crop": "cotton",
+        "stage": "maturity_harvest",
+        "days_after_sowing": 140,
+        "weather": {
+          "temp_max": 31,
+          "rain_probability": 0,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 9
+        },
+        "price": {
+          "modal_price": 7450,
+          "msp": 7121,
+          "trend": "rising"
+        }
+      },
+      "output": {
+        "urgency": "medium",
+        "message": "मंडी में कपास का भाव ७,४५० रुपये प्रति क्विंटल तक सुधरा है। यदि चुनाई की हुई सूखी कपास तैयार है तो बिक्री कर सकते हैं। मौसम बिल्कुल साफ बना रहेगा।",
+        "reason": "मंडी भाव में उछाल है और बारिश का कोई खतरा नहीं है।"
+      }
+    },
+    {
+      "id": "ex-07-price-falling-marathi",
+      "language": "mr",
+      "scenario": "falling_price_hold",
+      "input": {
+        "crop": "tomato",
+        "stage": "harvesting",
+        "days_after_sowing": 85,
+        "weather": {
+          "temp_max": 32,
+          "rain_probability": 15,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 11
+        },
+        "price": {
+          "modal_price": 1100,
+          "msp": 1400,
+          "trend": "falling"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "स्थानिक बाजारात आवक वाढल्याने टोमॅटोचे दर दबावात आहेत. शक्य असल्यास लगतच्या इतर बाजार समित्यांचे दर तपासा. तोडणी करताना केवळ पक्व झालेली फळेच तोडा.",
+        "reason": "दर घसरणीवर असल्याने इतर पर्यायी मंडयांचे भाव पडताळून निर्णय घेणे फायद्याचे ठरेल."
+      }
+    },
+    {
+      "id": "ex-08-price-falling-hindi",
+      "language": "hi",
+      "scenario": "falling_price_hold",
+      "input": {
+        "crop": "wheat",
+        "stage": "grain_filling_maturity",
+        "days_after_sowing": 95,
+        "weather": {
+          "temp_max": 30,
+          "rain_probability": 10,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 10
+        },
+        "price": {
+          "modal_price": 2220,
+          "msp": 2425,
+          "trend": "falling"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "वर्तमान में गेहूं का भाव न्यूनतम समर्थन मूल्य से नीचे चल रहा है। जल्दबाजी में औने-पौने दाम पर न बेचें और सरकारी खरीद केंद्र की जानकारी लें। खेत में सामान्य निगरानी रखें।",
+        "reason": "भाव एमएसपी से कम हैं, सरकारी खरीद शुरू होने का इंतजार करना उचित रहेगा।"
+      }
+    },
+    {
+      "id": "ex-09-missing-data-marathi",
+      "language": "mr",
+      "scenario": "missing_sowing_date",
+      "input": {
+        "crop": "cotton",
+        "stage": "unknown",
+        "days_after_sowing": null,
+        "weather": {
+          "temp_max": 32,
+          "rain_probability": 20,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 8
+        },
+        "price": {
+          "modal_price": 7180,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "तुमच्या कापूस पिकाची पेरणीची तारीख उपलब्ध नसल्याने अचूक वाढीचा टप्पा सांगता येत नाही. कृपया पिकांची नोंदणी अद्ययावत करा. हवामान सध्या सामान्य असून शेतीकामास अनुकूल आहे.",
+        "reason": "पेरणीची अचूक नोंद नसल्यामुळे विशिष्ट सल्ला न देता डेटा नोंदवण्याची विनंती केली."
+      }
+    },
+    {
+      "id": "ex-10-missing-data-hindi",
+      "language": "hi",
+      "scenario": "missing_weather_coords",
+      "input": {
+        "crop": "soybean",
+        "stage": "vegetative",
+        "days_after_sowing": 30,
+        "weather": null,
+        "price": {
+          "modal_price": 4650,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "आपके क्षेत्र की सटीक मौसम जानकारी अभी लोड नहीं हो सकी है। खेत में नमी और खरपतवार की सामान्य देखरेख रखें। कीटनाशक या खाद के किसी भी उपयोग से पहले स्थानीय कृषि सहायक से राय लें।",
+        "reason": "मौसम डेटा अनुपलब्ध होने से अनुमान न लगाकर सुरक्षित सामान्य परामर्श दिया गया।"
+      }
+    },
+    {
+      "id": "ex-11-no-action-marathi",
+      "language": "mr",
+      "scenario": "favorable_weather_routine",
+      "input": {
+        "crop": "wheat",
+        "stage": "jointing_booting",
+        "days_after_sowing": 48,
+        "weather": {
+          "temp_max": 28,
+          "rain_probability": 5,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 7
+        },
+        "price": {
+          "modal_price": 2420,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "हवामान स्वच्छ असून पिकासाठी अतिशय पोषक परिस्थिती आहे. सध्या कोणतीही तातडीची कृती करण्याची गरज नाही. आपले नियमित पाणी व आंतरमशागतीचे नियोजन सुरू ठेवावे.",
+        "reason": "हवामान व भाव अनुकूल असून पिकावर कोणताही धोका नाही."
+      }
+    },
+    {
+      "id": "ex-12-no-action-hindi",
+      "language": "hi",
+      "scenario": "favorable_weather_routine",
+      "input": {
+        "crop": "cotton",
+        "stage": "vegetative",
+        "days_after_sowing": 32,
+        "weather": {
+          "temp_max": 30,
+          "rain_probability": 10,
+          "rain_mm": 0,
+          "high_rain_hours": [],
+          "wind_speed": 6
+        },
+        "price": {
+          "modal_price": 7200,
+          "trend": "stable"
+        }
+      },
+      "output": {
+        "urgency": "low",
+        "message": "मौसम पूरी तरह साफ और फसल के अनुकूल बना हुआ है। अभी किसी आपातकालीन कार्य की आवश्यकता नहीं है। सामान्य निराई और नमी का ध्यान रखें।",
+        "reason": "मौसम सामान्य है और किसी प्रकार का कृषि तनाव मौजूद नहीं है।"
+      }
+    }
+  ]
+}
